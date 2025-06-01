@@ -8,19 +8,6 @@ import { FaSearch, FaCalendarAlt, FaTag } from "react-icons/fa"
 
 export default function DiaryList() {
   const { data: session, status } = useSession()
-
-  // 개발용 임시 세션
-  const mockSession = {
-    user: {
-      id: "dev-user-123",
-      name: "테스트 사용자",
-      email: "test@example.com",
-    },
-  }
-
-  const currentSession = session || mockSession
-  const currentStatus = session ? status : "authenticated"
-
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterTag, setFilterTag] = useState("")
@@ -90,11 +77,11 @@ export default function DiaryList() {
   // Get unique dates from all diaries
   const allDates = [...new Set(diaries.map((diary) => diary.date))]
 
-  if (currentStatus === "loading") {
+  if (status === "loading") {
     return <div className="min-h-screen flex items-center justify-center">로딩 중...</div>
   }
 
-  if (currentStatus === "unauthenticated" && !mockSession) {
+  if (status === "unauthenticated") {
     router.push("/")
     return null
   }

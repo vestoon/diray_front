@@ -62,20 +62,8 @@ export default function DiaryDetail() {
     ],
   }
 
-  // 개발용 임시 세션
-  const mockSession = {
-    user: {
-      id: "dev-user-123",
-      name: "테스트 사용자",
-      email: "test@example.com",
-    },
-  }
-
-  const currentSession = session || mockSession
-  const currentStatus = session ? status : "authenticated"
-
   // isAuthor 체크도 수정
-  const isAuthor = currentSession?.user?.id === diary?.authorId
+  const isAuthor = session?.user?.id === diary?.authorId
 
   const handleLike = () => {
     setLiked(!liked)
@@ -98,11 +86,11 @@ export default function DiaryDetail() {
     }
   }
 
-  if (currentStatus === "loading" || !id) {
+  if (status === "loading" || !id) {
     return <div className="min-h-screen flex items-center justify-center">로딩 중...</div>
   }
 
-  if (currentStatus === "unauthenticated" && !mockSession) {
+  if (status === "unauthenticated") {
     router.push("/")
     return null
   }

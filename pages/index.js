@@ -8,21 +8,9 @@ import { FaGoogle, FaPencilAlt, FaBook, FaExchangeAlt } from "react-icons/fa"
 
 export default function Home() {
   const { data: session } = useSession()
-
-  // 개발용 임시 세션 (실제 구글 로그인 없이 테스트 가능)
-  const mockSession = {
-    user: {
-      id: "dev-user-123",
-      name: "테스트 사용자",
-      email: "test@example.com",
-    },
-  }
-
-  // 실제 세션이 없으면 목업 세션 사용 (개발용)
-  const currentSession = session || mockSession
   const router = useRouter()
 
-  if (currentSession) {
+  if (session) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
         <div className="container mx-auto px-4 py-12">
@@ -83,8 +71,17 @@ export default function Home() {
   }
 
   const handleMockLogin = () => {
-    // 실제로는 signIn("google")을 호출하지만,
-    // 지금은 페이지 새로고침으로 목업 세션이 적용되도록
+    // 임시 로그인 처리
+    const mockSession = {
+      user: {
+        id: "dev-user-123",
+        name: "테스트 사용자",
+        email: "test@example.com",
+      },
+    }
+    // 세션 스토리지에 임시 세션 저장
+    sessionStorage.setItem("mockSession", JSON.stringify(mockSession))
+    // 페이지 새로고침
     window.location.reload()
   }
 

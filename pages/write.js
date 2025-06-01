@@ -5,20 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/router"
 
 export default function WriteDiary() {
-  // useSession 부분 수정
   const { data: session, status } = useSession()
-
-  // 개발용 임시 세션
-  const mockSession = {
-    user: {
-      id: "dev-user-123",
-      name: "테스트 사용자",
-      email: "test@example.com",
-    },
-  }
-
-  const currentSession = session || mockSession
-  const currentStatus = session ? status : "authenticated"
   const router = useRouter()
   const [diaryType, setDiaryType] = useState("oneline") // 'oneline' or 'regular'
   const [isPublic, setIsPublic] = useState(false)
@@ -33,11 +20,10 @@ export default function WriteDiary() {
 
   // 리다이렉트 조건 수정
   useEffect(() => {
-    // 개발 모드에서는 리다이렉트 하지 않음
-    if (currentStatus === "unauthenticated" && !mockSession) {
+    if (status === "unauthenticated") {
       router.push("/")
     }
-  }, [currentStatus, router])
+  }, [status, router])
 
   // Check for typing pause to trigger AI question
   useEffect(() => {
@@ -154,7 +140,7 @@ export default function WriteDiary() {
   }
 
   // 로딩 체크도 수정
-  if (currentStatus === "loading") {
+  if (status === "loading") {
     return <div className="min-h-screen flex items-center justify-center">로딩 중...</div>
   }
 

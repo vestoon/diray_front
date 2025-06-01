@@ -76,23 +76,11 @@ export default function TagRoom() {
     (diary) => diary.tags.includes(tag) || (filterType === "opposite" && !diary.tags.includes(tag)),
   )
 
-  // 개발용 임시 세션
-  const mockSession = {
-    user: {
-      id: "dev-user-123",
-      name: "테스트 사용자",
-      email: "test@example.com",
-    },
-  }
-
-  const currentSession = session || mockSession
-  const currentStatus = status
-
-  if (currentStatus === "loading" || !tag) {
+  if (status === "loading" || !tag) {
     return <div className="min-h-screen flex items-center justify-center">로딩 중...</div>
   }
 
-  if (currentStatus === "unauthenticated" && !mockSession) {
+  if (status === "unauthenticated") {
     router.push("/")
     return null
   }

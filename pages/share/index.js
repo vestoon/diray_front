@@ -8,19 +8,6 @@ import { FaRedo } from "react-icons/fa"
 
 export default function ShareRooms() {
   const { data: session, status } = useSession()
-
-  // 개발용 임시 세션
-  const mockSession = {
-    user: {
-      id: "dev-user-123",
-      name: "테스트 사용자",
-      email: "test@example.com",
-    },
-  }
-
-  const currentSession = session || mockSession
-  const currentStatus = session ? status : "authenticated"
-
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -70,11 +57,11 @@ export default function ShareRooms() {
   }
 
   // 로딩 및 인증 체크 수정
-  if (currentStatus === "loading") {
+  if (status === "loading") {
     return <div className="min-h-screen flex items-center justify-center">로딩 중...</div>
   }
 
-  if (currentStatus === "unauthenticated" && !mockSession) {
+  if (status === "unauthenticated") {
     router.push("/")
     return null
   }
