@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
+import Link from 'next/link'
+import {getData} from '../../lib/api'
+
 import {
   Edit3,
   Heart,
@@ -27,6 +30,8 @@ export default function Component() {
   const [time, setTime] = useState(new Date())
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+
+  // console.log(getData<string>("/diaries/1"))
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000)
@@ -258,14 +263,11 @@ export default function Component() {
                 Today
               </a>
               <a href="#" className="text-slate-600 hover:text-slate-800 transition-colors">
-                Write
-              </a>
-              <a href="#" className="text-slate-600 hover:text-slate-800 transition-colors">
                 My Journal
               </a>
-              <a href="#" className="text-slate-600 hover:text-slate-800 transition-colors">
+              <Link href="/clustering" className="text-slate-600 hover:text-slate-800 transition-colors">
                 나눔방
-              </a>
+              </Link>
               <a href="#" className="text-slate-600 hover:text-slate-800 transition-colors flex items-center">
                 More <span className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">2</span>
               </a>
@@ -286,7 +288,7 @@ export default function Component() {
               </div>
             </div>
 
-            {/* Mobile Menu Button 모바일 영역인듯? 나중에 개발*/}
+            {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center space-x-2">
               <Button variant="ghost" size="sm" className="p-2">
                 <Bell className="w-5 h-5" />
@@ -303,12 +305,6 @@ export default function Component() {
               <div className="px-2 pt-2 pb-3 space-y-1">
                 <a href="#" className="bg-blue-50 text-blue-600 block px-3 py-2 rounded-md text-base font-medium">
                   Today
-                </a>
-                <a
-                  href="#"
-                  className="text-slate-600 hover:text-slate-800 hover:bg-slate-50 block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Write
                 </a>
                 <a
                   href="#"
@@ -358,9 +354,11 @@ export default function Component() {
 
         {/* Quick Actions */}
         <div className="mb-6 sm:mb-8">
-          <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
-            <Plus className="w-5 h-5 mr-2" />새 일기 작성하기
-          </Button>
+          <Link href="/write">
+            <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Plus className="w-5 h-5 mr-2" />새 일기 작성하기
+            </Button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
