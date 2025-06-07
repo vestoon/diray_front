@@ -263,7 +263,7 @@ export default function Component() {
               <a href="#" className="text-slate-600 hover:text-slate-800 transition-colors">
                 My Journal
               </a>
-              <Link href="/clustering" className="text-slate-600 hover:text-slate-800 transition-colors">
+              <Link href="/communities" className="text-slate-600 hover:text-slate-800 transition-colors">
                 나눔방
               </Link>
               <a href="#" className="text-slate-600 hover:text-slate-800 transition-colors flex items-center">

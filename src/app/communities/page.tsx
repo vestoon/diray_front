@@ -175,10 +175,6 @@ export default function CommunitiesPage() {
             </Button>
             <h1 className="text-2xl font-bold text-slate-900">나눔방</h1>
           </div>
-          <Button onClick={() => setShowCreateRoom(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
-            <Plus className="w-4 h-4 mr-2" />
-            새 나눔방 만들기
-          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -1027,7 +1027,7 @@ export default function Component() {
                 </div>
 
                 <div>
-                  <p className="text-sm font-medium text-slate-700 mb-2">상황:</p>
+                  <p className="texgir remote -vt-sm font-medium text-slate-700 mb-2">상황:</p>
                   <div className="flex flex-wrap gap-2">
                     {situationTags.map((tag) => (
                       <button
