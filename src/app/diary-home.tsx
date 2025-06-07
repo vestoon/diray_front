@@ -3,27 +3,62 @@
 import { useState, useEffect } from "react"
 import { Button } from "./components/ui/button"
 import { Chrome } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { authAPI } from "@/lib/api"
+import { toast } from "sonner"
 
 export default function Component() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [time, setTime] = useState(new Date())
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [time, setTime] = useState<Date | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100,
-      })
+    // URL의 에러 파라미터 확인
+    const error = searchParams.get('error')
+    if (error) {
+      switch (error) {
+        case 'unknown_principal':
+          toast.error('알 수 없는 사용자입니다.')
+          break
+        case 'jwt_error':
+          toast.error('인증 토큰이 유효하지 않습니다.')
+          break
+        case 'no_user_found':
+          toast.error('사용자를 찾을 수 없습니다.')
+          break
+        default:
+          toast.error('로그인 중 오류가 발생했습니다.')
+      }
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await authAPI.getCurrentUser()
+        if (user) {
+          router.push('/dashboard')
+        }
+      } catch {
+        // 로그인되지 않은 상태이므로 무시
+        console.log('User not logged in')
+      }
     }
 
+    checkAuth()
+  }, [router])
+
+  useEffect(() => {
+    setTime(new Date())
     const timer = setInterval(() => setTime(new Date()), 1000)
-
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-      clearInterval(timer)
-    }
+    return () => clearInterval(timer)
   }, [])
+
+  const handleGoogleLogin = () => {
+    setIsLoading(true)
+    authAPI.googleLogin()
+  }
 
   const hashtags = [
     "#오늘의",
@@ -88,14 +123,14 @@ export default function Component() {
         <header className="flex justify-between items-start p-6 md:p-8 lg:p-12">
           <div className="space-y-1">
             <div className="text-sm text-neutral-500 font-mono tracking-wider">
-              {time.toLocaleDateString("ko-KR", {
+              {time?.toLocaleDateString("ko-KR", {
                 year: "numeric",
                 month: "2-digit",
                 day: "2-digit",
               })}
             </div>
             <div className="text-xl font-mono text-neutral-400 tracking-wider">
-              {time.toLocaleTimeString("ko-KR", {
+              {time?.toLocaleTimeString("ko-KR", {
                 hour: "2-digit",
                 minute: "2-digit",
                 second: "2-digit",
@@ -126,9 +161,13 @@ export default function Component() {
             {/* CTA Buttons */}
             <div className="flex flex-col gap-6 items-center max-w-sm mx-auto">
               {/* Google Login Button */}
-              <Button className="w-full bg-white text-zinc-800 hover:bg-neutral-100 border-0 px-8 py-6 text-lg font-medium group shadow-2xl hover:shadow-white/10 transition-all duration-500 rounded-2xl">
+              <Button 
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="w-full bg-white text-zinc-800 hover:bg-neutral-100 border-0 px-8 py-6 text-lg font-medium group shadow-2xl hover:shadow-white/10 transition-all duration-500 rounded-2xl"
+              >
                 <Chrome className="w-5 h-5 mr-3 text-zinc-700" />
-                Google로 시작하기
+                {isLoading ? '로그인 중...' : 'Google로 시작하기'}
               </Button>
 
               <p className="text-sm text-neutral-500 mt-2">모든 개인정보는 철저히 보호됩니다</p>

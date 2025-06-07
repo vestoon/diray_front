@@ -25,56 +25,18 @@ import {
   Calendar,
   ArrowLeft,
 } from "lucide-react"
-
-interface User {
-  id: string
-  name: string
-  avatar: string
-  tags: string[]
-  joinedClusters: string[]
-  recentActivity: string
-}
-
-interface Cluster {
-  id: string
-  name: string
-  description: string
-  tags: string[]
-  memberCount: number
-  color: string
-  isRecommended: boolean
-  recentActivity: string
-  matchScore?: number
-  createdAt: Date
-  isJoined: boolean
-  isOwner: boolean
-  category: "emotion" | "lifestyle" | "work" | "health" | "hobby"
-  activeMembers: number
-  todayPosts: number
-  weeklyGrowth: number
-}
-
-interface Post {
-  id: string
-  author: string
-  avatar: string
-  content: string
-  timestamp: Date
-  likes: number
-  comments: number
-  tags: string[]
-  clusterId: string
-}
+import { User, Community, Post } from "@/types/clustering"
 
 export default function SharingRoomsPage() {
   // 현재 사용자 데이터
   const [currentUser] = useState<User>({
-    id: "user1",
-    name: "김일기",
-    avatar: "/placeholder.svg?height=40&width=40&text=김",
-    tags: ["감정", "직장", "스트레스", "성장", "일상"],
-    joinedClusters: ["emotional-wellness"],
-    recentActivity: "2시간 전 활동",
+    id: "user-1",
+    name: "홍길동",
+    email: "hong@example.com",
+    tags: ["건강", "운동", "요리", "독서"],
+    joinedCommunities: ["emotional-wellness"],
+    createdAt: "2024-01-01",
+    lastActive: "2024-03-20"
   })
 
   const [activeTab, setActiveTab] = useState<"my-rooms" | "recommended" | "all" | "trending">("my-rooms")
@@ -84,13 +46,13 @@ export default function SharingRoomsPage() {
   const [newRoomName, setNewRoomName] = useState("")
   const [newRoomDescription, setNewRoomDescription] = useState("")
   const [newRoomTags, setNewRoomTags] = useState<string[]>([])
-  const [newRoomCategory, setNewRoomCategory] = useState<Cluster["category"]>("lifestyle")
-  const [showClusterAlert, setShowClusterAlert] = useState(false)
-  const [pendingCluster, setPendingCluster] = useState<Cluster | null>(null)
-  const [clusters, setClusters] = useState<Cluster[]>([])
+  const [newRoomCategory, setNewRoomCategory] = useState<Community["category"]>("lifestyle")
+  const [showCommunityAlert, setShowCommunityAlert] = useState(false)
+  const [pendingCommunity, setPendingCommunity] = useState<Community | null>(null)
+  const [communities, setCommunities] = useState<Community[]>([])
 
   // 데모 데이터
-  const demoClusterData: Cluster[] = [
+  const demoCommunityData: Community[] = [
     {
       id: "emotional-wellness",
       name: "감정 웰빙 모임",
@@ -195,41 +157,41 @@ export default function SharingRoomsPage() {
     },
   ]
 
-  const demoPosts: Post[] = [
-    {
-      id: "post1",
-      author: "힐링러버",
-      avatar: "/placeholder.svg?height=32&width=32&text=힐",
-      content: "오늘 명상을 처음 해봤는데 마음이 정말 평온해졌어요. 5분이라도 꾸준히 해보려고 합니다.",
-      timestamp: new Date(Date.now() - 10 * 60 * 1000),
-      likes: 12,
-      comments: 3,
-      tags: ["명상", "힐링"],
-      clusterId: "emotional-wellness",
-    },
-    {
-      id: "post2",
-      author: "직장인김씨",
-      avatar: "/placeholder.svg?height=32&width=32&text=김",
-      content: "팀 프로젝트가 성공적으로 마무리되었습니다! 함께 고생한 동료들에게 감사해요.",
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      likes: 8,
-      comments: 5,
-      tags: ["성취", "감사"],
-      clusterId: "work-life",
-    },
-    {
-      id: "post3",
-      author: "운동매니아",
-      avatar: "/placeholder.svg?height=32&width=32&text=운",
-      content: "새벽 러닝 3주차! 체력이 늘어나는 게 느껴져서 기분이 좋네요 💪",
-      timestamp: new Date(Date.now() - 60 * 60 * 1000),
-      likes: 15,
-      comments: 7,
-      tags: ["운동", "성장"],
-      clusterId: "health-fitness",
-    },
-  ]
+  // const demoPosts: Post[] = [
+  //   {
+  //     id: "post1",
+  //     author: "힐링러버",
+  //     avatar: "/placeholder.svg?height=32&width=32&text=힐",
+  //     content: "오늘 명상을 처음 해봤는데 마음이 정말 평온해졌어요. 5분이라도 꾸준히 해보려고 합니다.",
+  //     timestamp: new Date(Date.now() - 10 * 60 * 1000),
+  //     likes: 12,
+  //     comments: 3,
+  //     tags: ["명상", "힐링"],
+  //     clusterId: "emotional-wellness",
+  //   },
+  //   {
+  //     id: "post2",
+  //     author: "직장인김씨",
+  //     avatar: "/placeholder.svg?height=32&width=32&text=김",
+  //     content: "팀 프로젝트가 성공적으로 마무리되었습니다! 함께 고생한 동료들에게 감사해요.",
+  //     timestamp: new Date(Date.now() - 30 * 60 * 1000),
+  //     likes: 8,
+  //     comments: 5,
+  //     tags: ["성취", "감사"],
+  //     clusterId: "work-life",
+  //   },
+  //   {
+  //     id: "post3",
+  //     author: "운동매니아",
+  //     avatar: "/placeholder.svg?height=32&width=32&text=운",
+  //     content: "새벽 러닝 3주차! 체력이 늘어나는 게 느껴져서 기분이 좋네요 💪",
+  //     timestamp: new Date(Date.now() - 60 * 60 * 1000),
+  //     likes: 15,
+  //     comments: 7,
+  //     tags: ["운동", "성장"],
+  //     clusterId: "health-fitness",
+  //   },
+  // ]
 
   const categories = [
     { id: "all", name: "전체", icon: Users },
@@ -241,44 +203,42 @@ export default function SharingRoomsPage() {
   ]
 
   // 매칭 점수 계산
-  const calculateMatchScore = (cluster: Cluster) => {
-    const commonTags = cluster.tags.filter((tag) => currentUser.tags.includes(tag))
-    return Math.round((commonTags.length / Math.max(cluster.tags.length, currentUser.tags.length)) * 100)
+  const calculateMatchScore = (community: Community) => {
+    const commonTags = community.tags.filter((tag) => currentUser.tags.includes(tag))
+    return Math.round((commonTags.length / Math.max(community.tags.length, currentUser.tags.length)) * 100)
   }
 
   // 추천 클러스터 정렬
-  const getRecommendedClusters = () => {
-    return demoClusterData
-      .map((cluster) => ({
-        ...cluster,
-        matchScore: calculateMatchScore(cluster),
+  const getRecommendedCommunities = () => {
+    return demoCommunityData
+      .map((community) => ({
+        ...community,
+        matchScore: calculateMatchScore(community),
       }))
-      .sort((a, b) => b.matchScore - a.matchScore)
-      .slice(0, 4)
+      .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
   }
 
   // 트렌딩 클러스터 (성장률 기준)
-  const getTrendingClusters = () => {
-    return demoClusterData
-      .filter((cluster) => !cluster.isJoined)
-      .sort((a, b) => b.weeklyGrowth - a.weeklyGrowth)
-      .slice(0, 6)
+  const getTrendingCommunities = () => {
+    return demoCommunityData
+      .filter((community) => !community.isJoined)
+      .sort((a, b) => b.memberCount - a.memberCount)
   }
 
   // 필터링된 클러스터
-  const getFilteredClusters = () => {
-    let filtered = demoClusterData
+  const getFilteredCommunities = () => {
+    let filtered = demoCommunityData
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((cluster) => cluster.category === selectedCategory)
+      filtered = filtered.filter((community) => community.category === selectedCategory)
     }
 
     if (searchQuery) {
       filtered = filtered.filter(
-        (cluster) =>
-          cluster.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          cluster.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          cluster.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
+        (community) =>
+          community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          community.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          community.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())),
       )
     }
 
@@ -286,24 +246,24 @@ export default function SharingRoomsPage() {
   }
 
   // 클러스터 참여
-  const handleJoinCluster = (cluster: Cluster) => {
-    if (currentUser.joinedClusters.length > 0 && !currentUser.joinedClusters.includes(cluster.id)) {
-      setPendingCluster(cluster)
-      setShowClusterAlert(true)
+  const handleJoinCommunity = (community: Community) => {
+    if (currentUser.joinedCommunities.length > 0 && !currentUser.joinedCommunities.includes(community.id)) {
+      setPendingCommunity(community)
+      setShowCommunityAlert(true)
     } else {
       // 직접 참여
-      setClusters((prev) =>
-        prev.map((c) => (c.id === cluster.id ? { ...c, isJoined: true, memberCount: c.memberCount + 1 } : c)),
+      setCommunities((prev) =>
+        prev.map((c) => (c.id === community.id ? { ...c, isJoined: true, memberCount: c.memberCount + 1 } : c)),
       )
     }
   }
 
   // 클러스터 변경 확인
-  const confirmClusterChange = () => {
-    if (pendingCluster) {
-      setClusters((prev) =>
+  const confirmCommunityChange = () => {
+    if (pendingCommunity) {
+      setCommunities((prev) =>
         prev.map((c) => {
-          if (c.id === pendingCluster.id) {
+          if (c.id === pendingCommunity.id) {
             return { ...c, isJoined: true, memberCount: c.memberCount + 1 }
           }
           if (c.isJoined) {
@@ -312,15 +272,15 @@ export default function SharingRoomsPage() {
           return c
         }),
       )
-      setShowClusterAlert(false)
-      setPendingCluster(null)
+      setShowCommunityAlert(false)
+      setPendingCommunity(null)
     }
   }
 
   // 새 나눔방 생성
   const handleCreateRoom = () => {
     if (newRoomName && newRoomDescription) {
-      const newCluster: Cluster = {
+      const newCommunity: Community = {
         id: `custom-${Date.now()}`,
         name: newRoomName,
         description: newRoomDescription,
@@ -338,7 +298,7 @@ export default function SharingRoomsPage() {
         weeklyGrowth: 0,
       }
 
-      setClusters((prev) => [newCluster, ...prev])
+      setCommunities((prev) => [newCommunity, ...prev])
       setShowCreateRoom(false)
       setNewRoomName("")
       setNewRoomDescription("")
@@ -348,7 +308,7 @@ export default function SharingRoomsPage() {
   }
 
   useEffect(() => {
-    setClusters(demoClusterData)
+    setCommunities(demoCommunityData)
   }, [])
 
   return (
@@ -399,7 +359,7 @@ export default function SharingRoomsPage() {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm text-slate-500">참여 중인 나눔방</p>
-                <p className="text-2xl font-bold text-blue-600">{currentUser.joinedClusters.length}</p>
+                <p className="text-2xl font-bold text-blue-600">{currentUser.joinedCommunities.length}</p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-slate-500">내 관심 태그</p>
@@ -511,10 +471,10 @@ export default function SharingRoomsPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-slate-900">참여 중인 나눔방</h2>
-                <span className="text-sm text-slate-500">{clusters.filter((c) => c.isJoined).length}개 참여 중</span>
+                <span className="text-sm text-slate-500">{communities.filter((c) => c.isJoined).length}개 참여 중</span>
               </div>
 
-              {clusters.filter((c) => c.isJoined).length === 0 ? (
+              {communities.filter((c) => c.isJoined).length === 0 ? (
                 <div className="text-center py-16 bg-white rounded-lg border border-slate-200">
                   <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-slate-900 mb-2">아직 참여한 나눔방이 없어요</h3>
@@ -534,22 +494,22 @@ export default function SharingRoomsPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {clusters
+                  {communities
                     .filter((c) => c.isJoined)
-                    .map((cluster) => (
-                      <div key={cluster.id} className="bg-white rounded-lg border border-slate-200 p-6">
+                    .map((community) => (
+                      <div key={community.id} className="bg-white rounded-lg border border-slate-200 p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="font-semibold text-slate-900">{cluster.name}</h3>
-                              {cluster.isOwner && <Crown className="w-4 h-4 text-yellow-500" />}
-                              <span className={`px-2 py-1 rounded-full text-xs ${cluster.color}`}>
-                                {cluster.memberCount}명
+                              <h3 className="font-semibold text-slate-900">{community.name}</h3>
+                              {community.isOwner && <Crown className="w-4 h-4 text-yellow-500" />}
+                              <span className={`px-2 py-1 rounded-full text-xs ${community.color}`}>
+                                {community.memberCount}명
                               </span>
                             </div>
-                            <p className="text-sm text-slate-600 mb-3">{cluster.description}</p>
+                            <p className="text-sm text-slate-600 mb-3">{community.description}</p>
                             <div className="flex flex-wrap gap-2 mb-3">
-                              {cluster.tags.slice(0, 3).map((tag) => (
+                              {community.tags.slice(0, 3).map((tag) => (
                                 <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
                                   #{tag}
                                 </span>
@@ -558,11 +518,11 @@ export default function SharingRoomsPage() {
                             <div className="flex items-center justify-between text-xs text-slate-500">
                               <span className="flex items-center">
                                 <Activity className="w-3 h-3 mr-1" />
-                                활성 멤버 {cluster.activeMembers}명
+                                활성 멤버 {community.activeMembers}명
                               </span>
                               <span className="flex items-center">
                                 <MessageCircle className="w-3 h-3 mr-1" />
-                                오늘 {cluster.todayPosts}개 글
+                                오늘 {community.todayPosts}개 글
                               </span>
                             </div>
                           </div>
@@ -592,28 +552,28 @@ export default function SharingRoomsPage() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {getRecommendedClusters().map((cluster) => (
+                {getRecommendedCommunities().map((community) => (
                   <div
-                    key={cluster.id}
+                    key={community.id}
                     className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition-shadow"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-semibold text-slate-900">{cluster.name}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs ${cluster.color}`}>
-                            {cluster.memberCount}명
+                          <h3 className="font-semibold text-slate-900">{community.name}</h3>
+                          <span className={`px-2 py-1 rounded-full text-xs ${community.color}`}>
+                            {community.memberCount}명
                           </span>
-                          {cluster.matchScore && cluster.matchScore > 60 && (
+                          {community.matchScore && community.matchScore > 60 && (
                             <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                               <Star className="w-3 h-3 inline mr-1" />
-                              {cluster.matchScore}% 매칭
+                              {community.matchScore}% 매칭
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-slate-600 mb-3">{cluster.description}</p>
+                        <p className="text-sm text-slate-600 mb-3">{community.description}</p>
                         <div className="flex flex-wrap gap-2 mb-3">
-                          {cluster.tags.map((tag) => (
+                          {community.tags.map((tag) => (
                             <span
                               key={tag}
                               className={`px-2 py-1 rounded text-xs ${
@@ -629,17 +589,17 @@ export default function SharingRoomsPage() {
                         <div className="flex items-center justify-between text-xs text-slate-500">
                           <span className="flex items-center">
                             <Clock className="w-3 h-3 mr-1" />
-                            {cluster.recentActivity}
+                            {community.recentActivity}
                           </span>
                           <span className="flex items-center">
                             <TrendingUp className="w-3 h-3 mr-1" />
-                            주간 +{cluster.weeklyGrowth}%
+                            주간 +{community.weeklyGrowth}%
                           </span>
                         </div>
                       </div>
                     </div>
                     <Button
-                      onClick={() => handleJoinCluster(cluster)}
+                      onClick={() => handleJoinCommunity(community)}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                     >
                       참여하기
@@ -660,28 +620,28 @@ export default function SharingRoomsPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getTrendingClusters().map((cluster, index) => (
-                  <div key={cluster.id} className="bg-white rounded-lg border border-slate-200 p-6">
+                {getTrendingCommunities().map((community, index) => (
+                  <div key={community.id} className="bg-white rounded-lg border border-slate-200 p-6">
                     <div className="flex items-center space-x-2 mb-3">
                       <div className="flex items-center justify-center w-6 h-6 bg-orange-100 text-orange-600 rounded-full text-xs font-bold">
                         {index + 1}
                       </div>
-                      <h3 className="font-semibold text-slate-900">{cluster.name}</h3>
-                      <span className={`px-2 py-1 rounded-full text-xs ${cluster.color}`}>{cluster.memberCount}명</span>
+                      <h3 className="font-semibold text-slate-900">{community.name}</h3>
+                      <span className={`px-2 py-1 rounded-full text-xs ${community.color}`}>{community.memberCount}명</span>
                     </div>
-                    <p className="text-sm text-slate-600 mb-3">{cluster.description}</p>
+                    <p className="text-sm text-slate-600 mb-3">{community.description}</p>
                     <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
                       <span className="flex items-center">
                         <TrendingUp className="w-3 h-3 mr-1 text-green-500" />
-                        주간 +{cluster.weeklyGrowth}%
+                        주간 +{community.weeklyGrowth}%
                       </span>
                       <span className="flex items-center">
                         <Activity className="w-3 h-3 mr-1" />
-                        활성 {cluster.activeMembers}명
+                        활성 {community.activeMembers}명
                       </span>
                     </div>
                     <Button
-                      onClick={() => handleJoinCluster(cluster)}
+                      onClick={() => handleJoinCommunity(community)}
                       variant="outline"
                       className="w-full text-blue-600 border-blue-200 hover:bg-blue-50"
                     >
@@ -698,39 +658,39 @@ export default function SharingRoomsPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-slate-900">모든 나눔방</h2>
-                <span className="text-sm text-slate-500">{getFilteredClusters().length}개 나눔방</span>
+                <span className="text-sm text-slate-500">{getFilteredCommunities().length}개 나눔방</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getFilteredClusters().map((cluster) => (
-                  <div key={cluster.id} className="bg-white rounded-lg border border-slate-200 p-6">
+                {getFilteredCommunities().map((community) => (
+                  <div key={community.id} className="bg-white rounded-lg border border-slate-200 p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="font-medium text-slate-900">{cluster.name}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs ${cluster.color}`}>
-                            {cluster.memberCount}명
+                          <h3 className="font-medium text-slate-900">{community.name}</h3>
+                          <span className={`px-2 py-1 rounded-full text-xs ${community.color}`}>
+                            {community.memberCount}명
                           </span>
                         </div>
-                        <p className="text-sm text-slate-600">{cluster.description}</p>
+                        <p className="text-sm text-slate-600">{community.description}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {cluster.tags.slice(0, 3).map((tag) => (
+                      {community.tags.slice(0, 3).map((tag) => (
                         <span key={tag} className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
                           #{tag}
                         </span>
                       ))}
-                      {cluster.tags.length > 3 && (
+                      {community.tags.length > 3 && (
                         <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
-                          +{cluster.tags.length - 3}
+                          +{community.tags.length - 3}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
                       <span className="flex items-center">
                         <Calendar className="w-3 h-3 mr-1" />
-                        {cluster.createdAt.toLocaleDateString()}
+                        {community.createdAt.toLocaleDateString()}
                       </span>
                       <span className="flex items-center">
                         <Activity className="w-3 h-3 mr-1" />
@@ -738,15 +698,15 @@ export default function SharingRoomsPage() {
                       </span>
                     </div>
                     <Button
-                      onClick={() => handleJoinCluster(cluster)}
-                      variant={cluster.isJoined ? "outline" : "default"}
+                      onClick={() => handleJoinCommunity(community)}
+                      variant={community.isJoined ? "outline" : "default"}
                       className={`w-full ${
-                        cluster.isJoined
+                        community.isJoined
                           ? "text-slate-600 border-slate-200"
                           : "bg-blue-600 hover:bg-blue-700 text-white"
                       }`}
                     >
-                      {cluster.isJoined ? "참여 중" : "참여하기"}
+                      {community.isJoined ? "참여 중" : "참여하기"}
                     </Button>
                   </div>
                 ))}
@@ -756,7 +716,7 @@ export default function SharingRoomsPage() {
         </div>
 
         {/* 최근 활동 피드 */}
-        <div className="mt-12">
+        {/* <div className="mt-12">
           <h2 className="text-xl font-semibold text-slate-900 mb-6">최근 활동</h2>
           <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-200">
             {demoPosts.map((post) => (
@@ -793,11 +753,11 @@ export default function SharingRoomsPage() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
       </main>
 
       {/* 클러스터 변경 확인 모달 */}
-      {showClusterAlert && pendingCluster && (
+      {showCommunityAlert && pendingCommunity && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-start space-x-3">
@@ -807,16 +767,16 @@ export default function SharingRoomsPage() {
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-slate-900 mb-2">나눔방을 변경하시겠습니까?</h3>
                 <p className="text-sm text-slate-600 mb-4">
-                  현재 <strong>"{pendingCluster.name}"</strong>에 참여하려고 합니다. 기존 나눔방에서 나가고 새로운
+                  현재 <strong>"{pendingCommunity.name}"</strong>에 참여하려고 합니다. 기존 나눔방에서 나가고 새로운
                   나눔방에 참여하시겠습니까?
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                   <p className="text-sm text-blue-800">
                     <strong>새 나눔방 정보:</strong>
                   </p>
-                  <p className="text-sm text-blue-700 mt-1">{pendingCluster.description}</p>
+                  <p className="text-sm text-blue-700 mt-1">{pendingCommunity.description}</p>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {pendingCluster.tags.slice(0, 3).map((tag) => (
+                    {pendingCommunity.tags.slice(0, 3).map((tag) => (
                       <span key={tag} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
                         #{tag}
                       </span>
@@ -824,14 +784,14 @@ export default function SharingRoomsPage() {
                   </div>
                 </div>
                 <div className="flex space-x-3">
-                  <Button onClick={confirmClusterChange} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button onClick={confirmCommunityChange} className="bg-blue-600 hover:bg-blue-700 text-white">
                     변경하기
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setShowClusterAlert(false)
-                      setPendingCluster(null)
+                      setShowCommunityAlert(false)
+                      setPendingCommunity(null)
                     }}
                   >
                     취소
@@ -877,7 +837,7 @@ export default function SharingRoomsPage() {
                     return (
                       <button
                         key={category.id}
-                        onClick={() => setNewRoomCategory(category.id as Cluster["category"])}
+                        onClick={() => setNewRoomCategory(category.id as Community["category"])}
                         className={`flex flex-col items-center space-y-2 p-3 rounded-lg border-2 transition-colors ${
                           newRoomCategory === category.id
                             ? "border-blue-500 bg-blue-50"

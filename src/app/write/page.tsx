@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useRef, useCallback } from "react"
 import { Button } from "../components/ui/button"
-import { ArrowLeft, Type, PenTool, Smile, Tag, Save, Eye, EyeOff, Trash2, Download, Wand2, Calendar, Clock, MapPin, Camera, Upload, X, Edit, RotateCw, Crop, Palette, Filter, Hash, Users } from 'lucide-react'
+import { ArrowLeft, Type, PenTool, Smile, Tag, Save, Eye, EyeOff, Trash2, Download, Wand2, Calendar, Clock, MapPin, Camera, Upload, X, Edit, RotateCw, Crop, Palette, Filter, Hash, Users, ChevronRight } from 'lucide-react'
 import { RichTextEditor } from "../components/ui/rich-text-editor"
 
 // 고급 이미지 업로드 컴포넌트
@@ -433,6 +433,86 @@ export default function Component() {
       .replace(/[서울|부산|대구|인천|광주|대전|울산][시구군]\s*[가-힣동로길]+/g, "○○지역") // 주소
   }
 
+  // 태그 데이터
+  const tagCategories = {
+    감정: ["기쁨", "슬픔", "분노", "불안", "설렘", "지루함", "외로움", "만족", "실망"],
+    상황: ["직장", "학교", "가족", "친구", "연인", "여행", "운동", "취미", "휴식"],
+    건강: ["두통", "피로", "긴장", "식욕 감소", "불면"],
+  }
+
+  // 태그 색상 매핑
+  const tagColors = {
+    감정: {
+      기쁨: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      슬픔: "bg-blue-100 text-blue-800 border-blue-200",
+      분노: "bg-red-100 text-red-800 border-red-200",
+      불안: "bg-orange-100 text-orange-800 border-orange-200",
+      설렘: "bg-pink-100 text-pink-800 border-pink-200",
+      지루함: "bg-gray-100 text-gray-800 border-gray-200",
+      외로움: "bg-indigo-100 text-indigo-800 border-indigo-200",
+      만족: "bg-green-100 text-green-800 border-green-200",
+      실망: "bg-purple-100 text-purple-800 border-purple-200",
+    },
+    상황: {
+      직장: "bg-slate-100 text-slate-800 border-slate-200",
+      학교: "bg-emerald-100 text-emerald-800 border-emerald-200",
+      가족: "bg-amber-100 text-amber-800 border-amber-200",
+      친구: "bg-cyan-100 text-cyan-800 border-cyan-200",
+      연인: "bg-rose-100 text-rose-800 border-rose-200",
+      여행: "bg-sky-100 text-sky-800 border-sky-200",
+      운동: "bg-lime-100 text-lime-800 border-lime-200",
+      취미: "bg-violet-100 text-violet-800 border-violet-200",
+      휴식: "bg-teal-100 text-teal-800 border-teal-200",
+    },
+    건강: {
+      두통: "bg-red-100 text-red-800 border-red-200",
+      피로: "bg-amber-100 text-amber-800 border-amber-200",
+      긴장: "bg-orange-100 text-orange-800 border-orange-200",
+      "식욕 감소": "bg-yellow-100 text-yellow-800 border-yellow-200",
+      불면: "bg-indigo-100 text-indigo-800 border-indigo-200",
+    },
+  }
+
+  // 이모지 매핑
+  const emojiMap = {
+    기쁨: "😊",
+    슬픔: "😢",
+    분노: "😠",
+    불안: "😰",
+    설렘: "🤗",
+    지루함: "😴",
+    외로움: "🥺",
+    만족: "😌",
+    실망: "😞",
+    직장: "💼",
+    학교: "🏫",
+    가족: "👨‍👩‍👧‍👦",
+    친구: "👯",
+    연인: "💑",
+    여행: "✈️",
+    운동: "🏃",
+    취미: "🎨",
+    휴식: "🛌",
+    두통: "🤕",
+    피로: "😫",
+    긴장: "😬",
+    "식욕 감소": "🍽️",
+    불면: "🌙",
+  }
+
+  const [showOneLineTagSelector, setShowOneLineTagSelector] = useState(false)
+  const [activeOneLineTagCategory, setActiveOneLineTagCategory] = useState<keyof typeof tagCategories>("감정")
+  const [selectedOneLineTags, setSelectedOneLineTags] = useState<string[]>([])
+
+  // 한 줄 일기 태그 토글
+  const toggleOneLineTag = (tag: string) => {
+    if (selectedOneLineTags.includes(tag)) {
+      setSelectedOneLineTags(selectedOneLineTags.filter((t) => t !== tag))
+    } else {
+      setSelectedOneLineTags([...selectedOneLineTags, tag])
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -479,55 +559,145 @@ export default function Component() {
           <h2 className="text-lg font-semibold text-slate-900 mb-4">오늘의 한 줄 일기</h2>
 
           {/* 한 줄 일기 입력 */}
-          <div className="flex space-x-2 mb-4">
-            <input
-              type="text"
-              placeholder="오늘 하루를 한 줄로 표현해보세요..."
-              value={newOneLineDiary}
-              onChange={(e) => setNewOneLineDiary(e.target.value)}
-              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              onKeyPress={(e) => {
-                if (e.key === "Enter" && newOneLineDiary.trim()) {
-                  setOneLineDiaries([
-                    {
-                      id: Date.now().toString(),
-                      text: newOneLineDiary,
-                      timestamp: new Date(),
-                      mood: selectedMood,
-                      tags: tags,
-                      isPublic: isPublic,
-                    },
-                    ...oneLineDiaries,
-                  ])
-                  setNewOneLineDiary("")
-                }
-              }}
-            />
-            <Button
-              onClick={() => {
-                if (newOneLineDiary.trim()) {
-                  setOneLineDiaries([
-                    {
-                      id: Date.now().toString(),
-                      text: newOneLineDiary,
-                      timestamp: new Date(),
-                      mood: selectedMood,
-                      tags: tags,
-                      isPublic: isPublic,
-                    },
-                    ...oneLineDiaries,
-                  ])
-                  setNewOneLineDiary("")
-                }
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              추가
-            </Button>
+          <div className="space-y-4">
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                placeholder="오늘 하루를 한 줄로 표현해보세요..."
+                value={newOneLineDiary}
+                onChange={(e) => setNewOneLineDiary(e.target.value)}
+                className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && newOneLineDiary.trim()) {
+                    setOneLineDiaries([
+                      {
+                        id: Date.now().toString(),
+                        text: newOneLineDiary,
+                        timestamp: new Date(),
+                        mood: selectedMood,
+                        tags: selectedOneLineTags,
+                        isPublic: isPublic,
+                      },
+                      ...oneLineDiaries,
+                    ])
+                    setNewOneLineDiary("")
+                    setSelectedOneLineTags([])
+                  }
+                }}
+              />
+              <Button
+                onClick={() => {
+                  if (newOneLineDiary.trim()) {
+                    setOneLineDiaries([
+                      {
+                        id: Date.now().toString(),
+                        text: newOneLineDiary,
+                        timestamp: new Date(),
+                        mood: selectedMood,
+                        tags: selectedOneLineTags,
+                        isPublic: isPublic,
+                      },
+                      ...oneLineDiaries,
+                    ])
+                    setNewOneLineDiary("")
+                    setSelectedOneLineTags([])
+                  }
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                추가
+              </Button>
+            </div>
+
+            {/* 한 줄 일기 태그 선택 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <Tag className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">태그 선택</span>
+                </div>
+                <button
+                  onClick={() => setShowOneLineTagSelector(!showOneLineTagSelector)}
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center"
+                >
+                  {showOneLineTagSelector ? "접기" : "태그 더 보기"}
+                  <ChevronRight className={`w-3 h-3 ml-1 transition-transform ${showOneLineTagSelector ? "rotate-90" : ""}`} />
+                </button>
+              </div>
+
+              {/* 선택된 태그 표시 */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {selectedOneLineTags.length > 0 ? (
+                  selectedOneLineTags.map((tag) => {
+                    const category = Object.entries(tagCategories).find(([_, tags]) => tags.includes(tag))?.[0] as
+                      | keyof typeof tagColors
+                      | undefined
+                    const colorClass = category
+                      ? tagColors[category][tag as keyof (typeof tagColors)[typeof category]]
+                      : ""
+
+                    return (
+                      <span
+                        key={tag}
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}
+                      >
+                        {emojiMap[tag as keyof typeof emojiMap]} {tag}
+                        <button onClick={() => toggleOneLineTag(tag)} className="ml-1 text-slate-500 hover:text-slate-700">
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )
+                  })
+                ) : (
+                  <span className="text-xs text-slate-500">선택된 태그가 없습니다</span>
+                )}
+              </div>
+
+              {/* 태그 선택기 */}
+              {showOneLineTagSelector && (
+                <div className="bg-slate-50 rounded-lg p-3 border border-slate-200 mb-3">
+                  <div className="flex space-x-2 mb-3 overflow-x-auto pb-2">
+                    {Object.keys(tagCategories).map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => setActiveOneLineTagCategory(category as keyof typeof tagCategories)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                          activeOneLineTagCategory === category
+                            ? "bg-blue-100 text-blue-800 border border-blue-200"
+                            : "bg-white text-slate-700 border border-slate-200"
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {tagCategories[activeOneLineTagCategory].map((tag) => {
+                      const isSelected = selectedOneLineTags.includes(tag)
+                      const colorClass =
+                        tagColors[activeOneLineTagCategory][tag as keyof (typeof tagColors)[typeof activeOneLineTagCategory]]
+
+                      return (
+                        <button
+                          key={tag}
+                          onClick={() => toggleOneLineTag(tag)}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                            isSelected ? colorClass : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                          }`}
+                        >
+                          {emojiMap[tag as keyof typeof emojiMap]} {tag}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* 한 줄 일기 목록 */}
-          <div className="space-y-3 max-h-60 overflow-y-auto">
+          <div className="space-y-3 max-h-60 overflow-y-auto mt-4">
             {oneLineDiaries.map((diary) => (
               <div key={diary.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                 <div className="flex-1">
@@ -538,11 +708,20 @@ export default function Component() {
                     </span>
                     {diary.mood && <span className="text-sm">{moods.find((m) => m.value === diary.mood)?.emoji}</span>}
                     <div className="flex space-x-1">
-                      {diary.tags.slice(0, 2).map((tag) => (
-                        <span key={tag} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                          #{tag}
-                        </span>
-                      ))}
+                      {diary.tags.map((tag) => {
+                        const category = Object.entries(tagCategories).find(([_, tags]) => tags.includes(tag))?.[0] as
+                          | keyof typeof tagColors
+                          | undefined
+                        const colorClass = category
+                          ? tagColors[category][tag as keyof (typeof tagColors)[typeof category]]
+                          : ""
+
+                        return (
+                          <span key={tag} className={`text-xs px-2 py-1 rounded ${colorClass}`}>
+                            {emojiMap[tag as keyof typeof emojiMap]} {tag}
+                          </span>
+                        )
+                      })}
                     </div>
                     <span
                       className={`text-xs px-2 py-1 rounded ${diary.isPublic ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}

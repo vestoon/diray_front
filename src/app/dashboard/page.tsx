@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import Link from 'next/link'
-import {getData} from '../../lib/api'
+import { Diary, EmotionData, MoodColors, WeeklyTrend, EmotionPercentage } from "@/types/diary"
 
 import {
   Edit3,
@@ -31,15 +31,13 @@ export default function Component() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
-  // console.log(getData<string>("/diaries/1"))
-
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(timer)
   }, [])
 
   // 감정 데이터 (실제 앱에서는 API에서 가져올 것)
-  const emotionData: Record<string, { mood: string; intensity: number }> = {
+  const emotionData: Record<string, EmotionData> = {
     "2025-06-01": { mood: "happy", intensity: 0.8 },
     "2025-06-02": { mood: "happy", intensity: 0.9 },
     "2025-06-03": { mood: "neutral", intensity: 0.5 },
@@ -73,7 +71,7 @@ export default function Component() {
   }
 
   // 감정별 색상 및 이모지
-  const moodColors = {
+  const moodColors: Record<string, MoodColors> = {
     happy: { bg: "bg-yellow-400", text: "text-yellow-500", emoji: "😊" },
     sad: { bg: "bg-blue-400", text: "text-blue-500", emoji: "😢" },
     angry: { bg: "bg-red-400", text: "text-red-500", emoji: "😠" },
@@ -91,14 +89,14 @@ export default function Component() {
 
   // 감정 분포 퍼센트 계산
   const totalDays = Object.keys(emotionData).length
-  const emotionPercentages = Object.entries(emotionStats).map(([mood, count]) => ({
+  const emotionPercentages: EmotionPercentage[] = Object.entries(emotionStats).map(([mood, count]) => ({
     mood,
     count,
     percentage: Math.round((count / totalDays) * 100),
   }))
 
   // 주간 감정 추세 데이터
-  const weeklyTrend = [
+  const weeklyTrend: WeeklyTrend[] = [
     { day: "월", value: 0.8, mood: "happy" },
     { day: "화", value: 0.6, mood: "neutral" },
     { day: "수", value: 0.4, mood: "sad" },
@@ -188,7 +186,7 @@ export default function Component() {
   }
 
   // 나눔방 최신 일기
-  const myGroupEntries = [
+  const myGroupEntries: Diary[] = [
     {
       id: 1,
       title: "오늘 하루도 감사한 마음으로",
@@ -216,7 +214,7 @@ export default function Component() {
   ]
 
   // 추천 일기
-  const recommendedEntries = [
+  const recommendedEntries: Diary[] = [
     {
       id: 3,
       title: "혼자만의 시간이 주는 평온함",

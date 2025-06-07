@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://54.80.148.39/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  withCredentials: true,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
