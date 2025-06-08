@@ -96,19 +96,19 @@ export default function SharingRoomsPage() {
   const [showCommunityAlert, setShowCommunityAlert] = useState(false)
   const [pendingCommunity, setPendingCommunity] = useState<Community | null>(null)
   const [communities, setCommunities] = useState<Community[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  // const [isLoading, setIsLoading] = useState(true)
 
   // API 호출 함수들
   const fetchCommunities = async () => {
     try {
-      setIsLoading(true)
+      // setIsLoading(true)
       const response = await communityAPI.getDefaultCommunities()
       setCommunities(response.data)
     } catch (err) {
       console.error("커뮤니티 목록을 불러오는데 실패했습니다:", err)
       setCommunities(mockCommunities)
     } finally {
-      setIsLoading(false)
+      // setIsLoading(false)
     }
   }
 
@@ -698,7 +698,7 @@ export default function SharingRoomsPage() {
               <div className="flex-1">
                 <h3 className="text-lg font-medium text-slate-900 mb-2">나눔방을 변경하시겠습니까?</h3>
                 <p className="text-sm text-slate-600 mb-4">
-                  현재 <strong>"{pendingCommunity.name}"</strong>에 참여하려고 합니다. 기존 나눔방에서 나가고 새로운
+                  현재 <strong>&quot;{pendingCommunity.name}&quot;</strong>에 참여하려고 합니다. 기존 나눔방에서 나가고 새로운
                   나눔방에 참여하시겠습니까?
                 </p>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
