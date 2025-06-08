@@ -19,7 +19,7 @@ export default function MyDiaryPage() {
       try {
         setIsLoading(true)
         const response = await diaryAPI.getMyDiaries()
-        setDiaries(response)
+        setDiaries(response.data)
       } catch (err) {
         console.error("일기 목록을 불러오는데 실패했습니다:", err)
         setError("일기 목록을 불러오는데 실패했습니다.")
