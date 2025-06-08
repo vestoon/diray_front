@@ -16,31 +16,37 @@ import {
 
 // Diary API
 export const diaryAPI = {
+  // 새로운 일기 생성
   createDiary: async (data: CreateDiaryRequest): Promise<ApiResponse<Diary>> => {
     const response = await api.post<ApiResponse<Diary>>('/v1/diaries', data)
     return response.data
   },
 
+  // ID로 일기 조회
   getDiary: async (id: number): Promise<ApiResponse<Diary>> => {
     const response = await api.get<ApiResponse<Diary>>(`/v1/diaries/${id}`)
     return response.data
   },
 
+  // 기존 일기 수정정
   updateDiary: async (id: number, data: UpdateDiaryRequest): Promise<ApiResponse<Diary>> => {
     const response = await api.put<ApiResponse<Diary>>(`/v1/diaries/${id}`, data)
     return response.data
   },
 
+  // 일기 삭제
   deleteDiary: async (id: number): Promise<ApiResponse<void>> => {
     const response = await api.delete<ApiResponse<void>>(`/v1/diaries/${id}`)
     return response.data
   },
 
+  // 로그인한 사용자의 모든 일기 조회회
   getMyDiaries: async (): Promise<ApiResponse<Diary[]>> => {
     const response = await api.get<ApiResponse<Diary[]>>('/v1/diaries/my')
     return response.data
   },
 
+  
   getDiariesByPeriod: async (startDate: string, endDate: string): Promise<ApiResponse<Diary[]>> => {
     const response = await api.get<ApiResponse<Diary[]>>('/v1/diaries/period', {
       params: { start: startDate, end: endDate }
