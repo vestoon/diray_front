@@ -96,17 +96,31 @@ export default function SharingRoomsPage() {
   const [showCommunityAlert, setShowCommunityAlert] = useState(false)
   const [pendingCommunity, setPendingCommunity] = useState<Community | null>(null)
   const [communities, setCommunities] = useState<Community[]>([])
+  const [allCommunities, setAllCommunities] = useState<Community[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   // API 호출 함수들
   const fetchCommunities = async () => {
     try {
       setIsLoading(true)
-      const response = await communityAPI.getDefaultCommunities()
+      const response = await communityAPI.getMyCommunities()
       setCommunities(response.data)
     } catch (err) {
       console.error("커뮤니티 목록을 불러오는데 실패했습니다:", err)
       setCommunities(mockCommunities)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+    const fetchAllCommunities = async () => {
+    try {
+      setIsLoading(true)
+      const response = await communityAPI.getDefaultCommunities()
+      setAllCommunities(response.data)
+    } catch (err) {
+      console.error("커뮤니티 목록을 불러오는데 실패했습니다:", err)
+      setAllCommunities(mockCommunities)
     } finally {
       setIsLoading(false)
     }
@@ -250,6 +264,7 @@ export default function SharingRoomsPage() {
   useEffect(() => {
     fetchCurrentUser()
     fetchCommunities()
+    fetchAllCommunities()
   }, [])
 
   const categories = [
@@ -286,20 +301,20 @@ export default function SharingRoomsPage() {
 
   // 필터링된 클러스터
   const getFilteredCommunities = () => {
-    let filtered = communities
+    let filtered = allCommunities
 
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((community) => community.category === selectedCategory)
-    }
+    // if (selectedCategory !== "all") {
+    //   filtered = filtered.filter((community) => community.category === selectedCategory)
+    // }
 
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (community) =>
-          community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          community.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          community.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
-    }
+    // if (searchQuery) {
+    //   filtered = filtered.filter(
+    //     (community) =>
+    //       community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //       community.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //       community.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    //   )
+    // }
 
     return filtered
   }
@@ -443,10 +458,10 @@ export default function SharingRoomsPage() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-slate-900">참여 중인 나눔방</h2>
-                <span className="text-sm text-slate-500">{communities.filter((c) => c.isJoined).length}개 참여 중</span>
+                <span className="text-sm text-slate-500">{communities.length}개 참여 중</span>
               </div>
 
-              {communities.filter((c) => c.isJoined).length === 0 ? (
+              {communities.length === 0 ? (
                 <div className="text-center py-16 bg-white rounded-lg border border-slate-200">
                   <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-slate-900 mb-2">아직 참여한 나눔방이 없어요</h3>
@@ -467,7 +482,6 @@ export default function SharingRoomsPage() {
               ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {communities
-                    .filter((c) => c.isJoined)
                     .map((community) => (
                       <div key={community.id} className="bg-white rounded-lg border border-slate-200 p-6">
                         <div className="flex items-start justify-between mb-4">
