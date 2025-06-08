@@ -320,11 +320,11 @@ export default function SharingRoomsPage() {
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center">
                 <span className="text-lg font-medium text-slate-600">
-                  {currentUser.nickname?.[0] || currentUser.email[0]}
+                  {currentUser.email[0].toUpperCase()}
                 </span>
               </div>
               <div>
-                <h2 className="text-lg font-medium text-slate-900">{currentUser.nickname || currentUser.email}</h2>
+                <h2 className="text-lg font-medium text-slate-900">{currentUser.nickname?.split("@")[0]}</h2>
                 <p className="text-sm text-slate-500">{currentUser.email}</p>
               </div>
             </div>

@@ -66,7 +66,6 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('Response interceptor error:', error.response);
     // 에러 발생 시에도 타이밍 정보 정리
     if (error.config?.headers?.['X-Request-ID']) {
       const requestKey = error.config.headers['X-Request-ID'] as string;
