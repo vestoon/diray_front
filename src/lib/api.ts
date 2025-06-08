@@ -18,37 +18,37 @@ import {
 export const diaryAPI = {
   // 새로운 일기 생성
   createDiary: async (data: CreateDiaryRequest): Promise<ApiResponse<Diary>> => {
-    const response = await api.post<ApiResponse<Diary>>('/v1/diaries', data)
+    const response = await api.post<ApiResponse<Diary>>('/diaries', data)
     return response.data
   },
 
   // ID로 일기 조회
   getDiary: async (id: number): Promise<ApiResponse<Diary>> => {
-    const response = await api.get<ApiResponse<Diary>>(`/v1/diaries/${id}`)
+    const response = await api.get<ApiResponse<Diary>>(`/diaries/${id}`)
     return response.data
   },
 
   // 기존 일기 수정정
   updateDiary: async (id: number, data: UpdateDiaryRequest): Promise<ApiResponse<Diary>> => {
-    const response = await api.put<ApiResponse<Diary>>(`/v1/diaries/${id}`, data)
+    const response = await api.put<ApiResponse<Diary>>(`/diaries/${id}`, data)
     return response.data
   },
 
   // 일기 삭제
   deleteDiary: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await api.delete<ApiResponse<void>>(`/v1/diaries/${id}`)
+    const response = await api.delete<ApiResponse<void>>(`/diaries/${id}`)
     return response.data
   },
 
   // 로그인한 사용자의 모든 일기 조회회
   getMyDiaries: async (): Promise<ApiResponse<Diary[]>> => {
-    const response = await api.get<ApiResponse<Diary[]>>('/v1/diaries/my')
+    const response = await api.get<ApiResponse<Diary[]>>('/diaries/my')
     return response.data
   },
 
   
   getDiariesByPeriod: async (startDate: string, endDate: string): Promise<ApiResponse<Diary[]>> => {
-    const response = await api.get<ApiResponse<Diary[]>>('/v1/diaries/period', {
+    const response = await api.get<ApiResponse<Diary[]>>('/diaries/period', {
       params: { start: startDate, end: endDate }
     })
     return response.data
@@ -58,32 +58,32 @@ export const diaryAPI = {
 // One Line Diary API
 export const oneLineDiaryAPI = {
   createOneLineDiary: async (data: CreateOneLineDiaryRequest): Promise<ApiResponse<OneLineDiary>> => {
-    const response = await api.post<ApiResponse<OneLineDiary>>('/v1/one-line-diaries', data)
+    const response = await api.post<ApiResponse<OneLineDiary>>('/one-line-diaries', data)
     return response.data
   },
 
   getOneLineDiary: async (id: number): Promise<ApiResponse<OneLineDiary>> => {
-    const response = await api.get<ApiResponse<OneLineDiary>>(`/v1/one-line-diaries/${id}`)
+    const response = await api.get<ApiResponse<OneLineDiary>>(`/one-line-diaries/${id}`)
     return response.data
   },
 
   updateOneLineDiary: async (id: number, data: UpdateOneLineDiaryRequest): Promise<ApiResponse<OneLineDiary>> => {
-    const response = await api.put<ApiResponse<OneLineDiary>>(`/v1/one-line-diaries/${id}`, data)
+    const response = await api.put<ApiResponse<OneLineDiary>>(`/one-line-diaries/${id}`, data)
     return response.data
   },
 
   deleteOneLineDiary: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await api.delete<ApiResponse<void>>(`/v1/one-line-diaries/${id}`)
+    const response = await api.delete<ApiResponse<void>>(`/one-line-diaries/${id}`)
     return response.data
   },
 
   getMyOneLineDiaries: async (): Promise<ApiResponse<OneLineDiary[]>> => {
-    const response = await api.get<ApiResponse<OneLineDiary[]>>('/v1/one-line-diaries/user')
+    const response = await api.get<ApiResponse<OneLineDiary[]>>('/one-line-diaries/user')
     return response.data
   },
 
   getOneLineDiariesByPeriod: async (startDate: string, endDate: string): Promise<ApiResponse<OneLineDiary[]>> => {
-    const response = await api.get<ApiResponse<OneLineDiary[]>>('/v1/one-line-diaries/period', {
+    const response = await api.get<ApiResponse<OneLineDiary[]>>('/one-line-diaries/period', {
       params: { start: startDate, end: endDate }
     })
     return response.data
@@ -93,32 +93,32 @@ export const oneLineDiaryAPI = {
 // Community API
 export const communityAPI = {
   createCommunity: async (data: CreateCommunityRequest): Promise<ApiResponse<Community>> => {
-    const response = await api.post<ApiResponse<Community>>('/v1/communities', data)
+    const response = await api.post<ApiResponse<Community>>('/communities', data)
     return response.data
   },
 
   getCommunity: async (id: number): Promise<ApiResponse<Community>> => {
-    const response = await api.get<ApiResponse<Community>>(`/v1/communities/${id}`)
+    const response = await api.get<ApiResponse<Community>>(`/communities/${id}`)
     return response.data
   },
 
   getDefaultCommunities: async (): Promise<ApiResponse<Community[]>> => {
-    const response = await api.get<ApiResponse<Community[]>>('/v1/communities/default')
+    const response = await api.get<ApiResponse<Community[]>>('/communities/default')
     return response.data
   },
 
   getMyCommunities: async (): Promise<ApiResponse<Community[]>> => {
-    const response = await api.get<ApiResponse<Community[]>>('/v1/communities/my')
+    const response = await api.get<ApiResponse<Community[]>>('/communities/my')
     return response.data
   },
 
   joinCommunity: async (id: number, data: JoinCommunityRequest): Promise<ApiResponse<void>> => {
-    const response = await api.post<ApiResponse<void>>(`/v1/communities/${id}/join`, data)
+    const response = await api.post<ApiResponse<void>>(`/communities/${id}/join`, data)
     return response.data
   },
 
   leaveCommunity: async (id: number): Promise<ApiResponse<void>> => {
-    const response = await api.post<ApiResponse<void>>(`/v1/communities/${id}/leave`)
+    const response = await api.post<ApiResponse<void>>(`/communities/${id}/leave`)
     return response.data
   },
 }
