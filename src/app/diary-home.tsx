@@ -3,12 +3,11 @@
 import { useState, useEffect } from "react"
 import { Button } from "./components/ui/button"
 import { Chrome } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { authAPI } from "@/lib/api"
 import { toast } from "sonner"
 
 export default function Component() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [time, setTime] = useState<Date | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -32,22 +31,6 @@ export default function Component() {
       }
     }
   }, [searchParams])
-
-  // useEffect(() => {
-  //   const checkAuth = async () => {
-  //     try {
-  //       const user = await authAPI.getCurrentUser()
-  //       if (user) {
-  //         router.push('/dashboard')
-  //       }
-  //     } catch {
-  //       // 로그인되지 않은 상태이므로 무시
-  //       console.log('User not logged in')
-  //     }
-  //   }
-
-  //   checkAuth()
-  // }, [router])
 
   useEffect(() => {
     setTime(new Date())

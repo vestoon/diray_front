@@ -132,7 +132,7 @@ export const authAPI = {
 
   // 현재 로그인된 사용자 정보 조회
   getCurrentUser: async (): Promise<AuthUser> => {
-    const response = await api.get<AuthResponse>('/auth/me');
+    const response = await api.get<AuthResponse>('/auth');
     return response.data.user;
   }
 };

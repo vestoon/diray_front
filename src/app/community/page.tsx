@@ -18,10 +18,9 @@ export default function CommunityPage() {
     const fetchCommunityDiaries = async () => {
       try {
         setIsLoading(true)
-        const response = await diaryAPI.getDiariesByPeriod(
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          new Date().toISOString()
-        )
+        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+        const endDate = new Date().toISOString()
+        const response = await diaryAPI.getDiariesByPeriod(startDate, endDate)
         setDiaries(response.data)
       } catch (err) {
         console.error("커뮤니티 일기를 불러오는데 실패했습니다:", err)
