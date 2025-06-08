@@ -80,7 +80,7 @@ api.interceptors.response.use(
           console.warn('Authentication failed, redirecting to login');
           removeToken();
           if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+            window.location.href = '/';
           }
           break;
           

@@ -33,21 +33,21 @@ export default function Component() {
     }
   }, [searchParams])
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = await authAPI.getCurrentUser()
-        if (user) {
-          router.push('/dashboard')
-        }
-      } catch {
-        // 로그인되지 않은 상태이므로 무시
-        console.log('User not logged in')
-      }
-    }
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const user = await authAPI.getCurrentUser()
+  //       if (user) {
+  //         router.push('/dashboard')
+  //       }
+  //     } catch {
+  //       // 로그인되지 않은 상태이므로 무시
+  //       console.log('User not logged in')
+  //     }
+  //   }
 
-    checkAuth()
-  }, [router])
+  //   checkAuth()
+  // }, [router])
 
   useEffect(() => {
     setTime(new Date())

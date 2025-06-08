@@ -96,19 +96,19 @@ export default function SharingRoomsPage() {
   const [showCommunityAlert, setShowCommunityAlert] = useState(false)
   const [pendingCommunity, setPendingCommunity] = useState<Community | null>(null)
   const [communities, setCommunities] = useState<Community[]>([])
-  // const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
 
   // API 호출 함수들
   const fetchCommunities = async () => {
     try {
-      // setIsLoading(true)
+      setIsLoading(true)
       const response = await communityAPI.getDefaultCommunities()
       setCommunities(response.data)
     } catch (err) {
       console.error("커뮤니티 목록을 불러오는데 실패했습니다:", err)
       setCommunities(mockCommunities)
     } finally {
-      // setIsLoading(false)
+      setIsLoading(false)
     }
   }
 
