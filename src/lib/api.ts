@@ -11,7 +11,6 @@ import {
   CreateCommunityRequest,
   JoinCommunityRequest,
   AuthUser,
-  AuthResponse
 } from '@/types/diary';
 
 // Diary API

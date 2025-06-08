@@ -14,6 +14,7 @@ const eslintConfig = [
     {
     rules: {
       "@typescript-eslint/no-unused-vars": "warn", // 또는 "off"
+      "prefer-const": "warn", // 추가
     },
   },
 ];
