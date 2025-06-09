@@ -162,10 +162,6 @@ export interface AuthUser {
   role: 'USER' | 'ADMIN';
 }
 
-export interface AuthResponse {
-  user: AuthUser;
-}
-
 // 샘플 한 줄 일기 데이터
 export const sampleQuickNotes: QuickNote[] = [
   {
