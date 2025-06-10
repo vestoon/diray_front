@@ -7,6 +7,8 @@ import { Diary, EmotionData, MoodColors, WeeklyTrend, EmotionPercentage } from "
 import { diaryAPI, communityAPI } from "@/lib/api"
 import { toast } from "sonner"
 import Header from "@/components/Header"
+import UserInfoCard from "@/components/UserInfoCard"
+import { useUser } from "@/lib/context/UserContext" // 변경된 부분
 
 import {
   Heart,
@@ -26,6 +28,7 @@ import {
 } from "lucide-react"
 
 export default function Component() {
+  const { user: currentUser, isLoading: isUserLoading } = useUser() // 변경된 부분
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [groupEntries, setGroupEntries] = useState<Diary[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -310,10 +313,29 @@ export default function Component() {
     }
   ]
 
+  // 랜더링 방식 변경: 유저 정보 로딩 및 미로그인 처리
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-500 text-lg">로그인이 필요합니다.</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
-      <main className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <UserInfoCard user={currentUser} />
+        
         {/* Page Title */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl font-bold text-slate-900">대시보드</h1>

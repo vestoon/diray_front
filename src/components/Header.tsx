@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Bell, Search, BookOpen, Home, Users, User, LogOut } from "lucide-react"
+import { Bell, BookOpen, Home, Users, User, LogOut } from "lucide-react"
+import { useUser } from "@/lib/context/UserContext"
 
 interface HeaderProps {
   title?: string
@@ -16,6 +17,7 @@ export default function Header({ showBackButton = false, showMoreButton = false,
   const router = useRouter()
   const pathname = usePathname()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const { user } = useUser()
 
   const handleBack = () => {
     router.back()
@@ -68,16 +70,6 @@ export default function Header({ showBackButton = false, showMoreButton = false,
                 <span className="font-medium hidden sm:inline">홈</span>
               </button>
               <button
-                onClick={() => router.push("/search")}
-                className={cn(
-                  "flex items-center space-x-2",
-                  isActive("/search") ? "text-blue-600" : "text-slate-600 hover:text-slate-900"
-                )}
-              >
-                <Search className="h-5 w-5" />
-                <span className="font-medium hidden sm:inline">검색</span>
-              </button>
-              <button
                 onClick={() => router.push("/my-diary")}
                 className={cn(
                   "flex items-center space-x-2",
@@ -120,8 +112,8 @@ export default function Header({ showBackButton = false, showMoreButton = false,
               {isUserMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 py-1">
                   <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-sm font-medium text-slate-900">홍길동</p>
-                    <p className="text-xs text-slate-500">user@example.com</p>
+                    <p className="text-sm font-medium text-slate-900">{user?.nickname || '사용자'}</p>
+                    <p className="text-xs text-slate-500">{user?.email}</p>
                   </div>
                   <button
                     onClick={handleLogout}

@@ -8,8 +8,11 @@ import { diaryAPI } from "@/lib/api"
 import { toast } from "sonner"
 import Header from "@/components/Header"
 import { Plus, Heart, MessageCircle, Calendar, Clock } from "lucide-react"
+import UserInfoCard from "@/components/UserInfoCard"
+import { useUser } from "@/lib/hooks/useUser"
 
 export default function MyDiaryPage() {
+  const { user: currentUser } = useUser()
   const [diaries, setDiaries] = useState<Diary[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +38,9 @@ export default function MyDiaryPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
-      <main className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-6 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <UserInfoCard user={currentUser} />
+        
         {/* Page Title */}
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl font-bold text-slate-900">내 일기</h1>

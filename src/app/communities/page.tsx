@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
+import { useUser } from "@/lib/context/UserContext"
 import {
   X,
   Users,
@@ -24,6 +25,7 @@ import {
 import { User, Community, CreateCommunityRequest } from "@/types/diary"
 import Header from "@/components/Header"
 import { communityAPI, authAPI } from "@/lib/api"
+import UserInfoCard from "@/components/UserInfoCard"
 
 // Mock 데이터
 const mockCommunities: Community[] = [
@@ -77,14 +79,7 @@ const mockCommunities: Community[] = [
 ]
 
 export default function SharingRoomsPage() {
-  const [currentUser, setCurrentUser] = useState<User>({
-    id: 1,
-    email: "hong@example.com",
-    nickname: "홍길동",
-    role: "USER",
-    joinedCommunities: []
-  })
-
+  const { user: currentUser, isLoading: isUserLoading, setUser } = useUser()
   const [activeTab, setActiveTab] = useState<"my-rooms" | "recommended" | "all" | "trending">("my-rooms")
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string>("all")
@@ -113,106 +108,116 @@ export default function SharingRoomsPage() {
     }
   }
 
-    const fetchAllCommunities = async () => {
-    try {
-      setIsLoading(true)
-      const response = await communityAPI.getDefaultCommunities()
-      setAllCommunities(response.data)
-    } catch (err) {
-      console.error("커뮤니티 목록을 불러오는데 실패했습니다:", err)
-      setAllCommunities(mockCommunities)
-    } finally {
-      setIsLoading(false)
-    }
+  const fetchAllCommunities = async () => {
+  try {
+    setIsLoading(true)
+    const response = await communityAPI.getDefaultCommunities()
+    setAllCommunities(response.data)
+  } catch (err) {
+    console.error("커뮤니티 목록을 불러오는데 실패했습니다:", err)
+    setAllCommunities(mockCommunities)
+  } finally {
+    setIsLoading(false)
+  }
   }
 
-  const fetchCurrentUser = async () => {
-    try {
-      const user = await authAPI.getCurrentUser()
-      setCurrentUser({
-        ...user,
-        joinedCommunities: []
-      })
-    } catch (err) {
-      console.error("사용자 정보를 불러오는데 실패했습니다:", err)
-    }
+  useEffect(() => {
+    fetchCommunities()
+    fetchAllCommunities()
+  }, [])
+
+  // 조건부 렌더링은 useEffect 아래에서!
+  if (isUserLoading) {
+    return <div>로딩중...</div>
+  }
+  if (!currentUser) {
+    return <div>로그인이 필요합니다.</div>
   }
 
+  // --- 함수 내부에서도 null 체크 추가 ---
   const handleJoinCommunity = async (community: Community) => {
+    if (!currentUser) return // 혹시 모를 타입스크립트 경고 방지
     try {
-      if (currentUser.joinedCommunities && currentUser.joinedCommunities.length > 0 && 
-          !currentUser.joinedCommunities.includes(community.id.toString())) {
+      if (
+        currentUser.joinedCommunities &&
+        currentUser.joinedCommunities.length > 0 &&
+        !currentUser.joinedCommunities.includes(community.id)
+      ) {
         setPendingCommunity(community)
         setShowCommunityAlert(true)
       } else {
         await communityAPI.joinCommunity(community.id, { joinCode: "" })
-        setCommunities(prev => 
+        setCommunities(prev =>
           prev.map(c => c.id === community.id ? { ...c, isJoined: true } : c)
         )
-        setCurrentUser(prev => ({
-          ...prev,
-          joinedCommunities: [...(prev.joinedCommunities || []), community.id.toString()]
-        }))
+        setUser({
+          ...currentUser,
+          joinedCommunities: [
+            ...(currentUser.joinedCommunities || []),
+            community.id
+          ]
+        })
       }
     } catch (err) {
       console.error("커뮤니티 참여에 실패했습니다:", err)
-      // Mock 데이터로 UI 업데이트
-      setCommunities(prev => 
+      setCommunities(prev =>
         prev.map(c => c.id === community.id ? { ...c, isJoined: true } : c)
       )
-      setCurrentUser(prev => ({
-        ...prev,
-        joinedCommunities: [...(prev.joinedCommunities || []), community.id.toString()]
-      }))
+      setUser({
+        ...currentUser,
+        joinedCommunities: [
+          ...(currentUser.joinedCommunities || []),
+          community.id
+        ]
+      })
     }
   }
 
   const confirmCommunityChange = async () => {
-    if (pendingCommunity) {
-      try {
-        await communityAPI.joinCommunity(pendingCommunity.id, { joinCode: "" })
-        setCommunities(prev =>
-          prev.map(c => {
-            if (c.id === pendingCommunity.id) {
-              return { ...c, isJoined: true }
-            }
-            if (c.isJoined) {
-              return { ...c, isJoined: false }
-            }
-            return c
-          })
-        )
-        setCurrentUser(prev => ({
-          ...prev,
-          joinedCommunities: [pendingCommunity.id.toString()]
-        }))
-        setShowCommunityAlert(false)
-        setPendingCommunity(null)
-      } catch (err) {
-        console.error("커뮤니티 변경에 실패했습니다:", err)
-        // Mock 데이터로 UI 업데이트
-        setCommunities(prev =>
-          prev.map(c => {
-            if (c.id === pendingCommunity.id) {
-              return { ...c, isJoined: true }
-            }
-            if (c.isJoined) {
-              return { ...c, isJoined: false }
-            }
-            return c
-          })
-        )
-        setCurrentUser(prev => ({
-          ...prev,
-          joinedCommunities: [pendingCommunity.id.toString()]
-        }))
-        setShowCommunityAlert(false)
-        setPendingCommunity(null)
-      }
+    if (!currentUser || !pendingCommunity) return
+    try {
+      await communityAPI.joinCommunity(pendingCommunity.id, { joinCode: "" })
+      setCommunities(prev =>
+        prev.map(c => {
+          if (c.id === pendingCommunity.id) {
+            return { ...c, isJoined: true }
+          }
+          if (c.isJoined) {
+            return { ...c, isJoined: false }
+          }
+          return c
+        })
+      )
+      setUser({
+        ...currentUser,
+        joinedCommunities: [pendingCommunity.id]
+      })
+      setShowCommunityAlert(false)
+      setPendingCommunity(null)
+    } catch (err) {
+      console.error("커뮤니티 변경에 실패했습니다:", err)
+      setCommunities(prev =>
+        prev.map(c => {
+          if (c.id === pendingCommunity.id) {
+            return { ...c, isJoined: true }
+          }
+          if (c.isJoined) {
+            return { ...c, isJoined: false }
+          }
+          return c
+        })
+      )
+      setUser({
+        ...currentUser,
+        joinedCommunities: [pendingCommunity.id]
+      })
+      setShowCommunityAlert(false)
+      setPendingCommunity(null)
     }
   }
 
   const handleCreateRoom = async () => {
+    if (!currentUser) return
     if (newRoomName && newRoomDescription) {
       try {
         const newCommunity: CreateCommunityRequest = {
@@ -260,12 +265,6 @@ export default function SharingRoomsPage() {
       }
     }
   }
-
-  useEffect(() => {
-    fetchCurrentUser()
-    fetchCommunities()
-    fetchAllCommunities()
-  }, [])
 
   const categories = [
     { id: "all", name: "전체", icon: Users },
@@ -319,6 +318,24 @@ export default function SharingRoomsPage() {
     return filtered
   }
 
+  // isLoading 처리 추가
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  // 꼭 필요한진 모르겠지만 아무튼 그렇다고 하네
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-500 text-lg">로그인이 필요합니다.</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Header />
@@ -329,43 +346,8 @@ export default function SharingRoomsPage() {
           <p className="text-slate-500">비슷한 관심사를 가진 사람들과 소통해보세요</p>
         </div>
 
-        {/* 사용자 정보 카드 수정 */}
-        <div className="bg-white rounded-lg border border-slate-200 p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-full bg-slate-200 flex items-center justify-center">
-                <span className="text-lg font-medium text-slate-600">
-                  {currentUser.email[0].toUpperCase()}
-                </span>
-              </div>
-              <div>
-                <h2 className="text-lg font-medium text-slate-900">{currentUser.nickname?.split("@")[0]}</h2>
-                <p className="text-sm text-slate-500">{currentUser.email}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm text-slate-500">참여 중인 나눔방</p>
-                <p className="text-2xl font-bold text-blue-600">{currentUser.joinedCommunities?.length || 0}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-slate-500">내 관심 태그</p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {currentUser.tags?.slice(0, 3).map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
-                      #{tag}
-                    </span>
-                  ))}
-                  {currentUser.tags && currentUser.tags.length > 3 && (
-                    <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-xs">
-                      +{currentUser.tags.length - 3}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* 사용자 정보 카드 */}
+        <UserInfoCard user={currentUser} />
 
         {/* 탭 네비게이션 */}
         <div className="flex space-x-1 bg-white rounded-lg border border-slate-200 p-1 mb-8">
