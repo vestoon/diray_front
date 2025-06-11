@@ -289,8 +289,6 @@ export default function Component() {
       isPublic: true,
     },
   ])
-  const [newOneLineDiary, setNewOneLineDiary] = useState("")
-  const [activeTab, setActiveTab] = useState<"text" | "handwriting">("text")
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [selectedMood, setSelectedMood] = useState("")
@@ -307,14 +305,6 @@ export default function Component() {
   const [aiSuggestion, setAiSuggestion] = useState("")
   const [lastCursorActivity, setLastCursorActivity] = useState(Date.now())
 
-  // 손글씨 관련 상태
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [brushSize, setBrushSize] = useState(3)
-  const [brushColor, setBrushColor] = useState("#000000")
-  const [handwritingText, setHandwritingText] = useState("")
-  const [isOCRProcessing, setIsOCRProcessing] = useState(false)
-
   const moods = [
     { emoji: "😊", label: "행복", value: "happy", color: "bg-yellow-100 text-yellow-800" },
     { emoji: "😢", label: "슬픔", value: "sad", color: "bg-blue-100 text-blue-800" },
@@ -329,71 +319,6 @@ export default function Component() {
   const emotionTags = ["기쁨", "슬픔", "분노", "불안", "설렘", "지루함", "외로움", "만족", "실망"]
   const situationTags = ["직장", "학교", "가족", "친구", "연인", "여행", "운동", "취미", "휴식"]
   const healthTags = ["두통", "피로", "긴장", "식욕 감소", "불면"]
-
-  // 손글씨 캔버스 관련 함수들
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsDrawing(true)
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-
-    const ctx = canvas.getContext("2d")
-    if (ctx) {
-      ctx.beginPath()
-      ctx.moveTo(x, y)
-      ctx.lineWidth = brushSize
-      ctx.strokeStyle = brushColor
-      ctx.lineCap = "round"
-    }
-  }
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return
-
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const rect = canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-
-    const ctx = canvas.getContext("2d")
-    if (ctx) {
-      ctx.lineTo(x, y)
-      ctx.stroke()
-    }
-  }
-
-  const stopDrawing = () => {
-    setIsDrawing(false)
-  }
-
-  const clearCanvas = () => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext("2d")
-    if (ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-    }
-    setHandwritingText("")
-  }
-
-  // OCR 기능 (실제로는 외부 API 사용)
-  const performOCR = async () => {
-    setIsOCRProcessing(true)
-
-    // 실제 구현에서는 Canvas 이미지를 OCR API로 전송
-    setTimeout(() => {
-      const mockOCRResult =
-        "오늘은 정말 좋은 하루였다. 친구들과 함께 카페에서 즐거운 시간을 보냈고, 새로운 책도 읽기 시작했다. 작은 일상의 행복을 느낄 수 있어서 감사하다."
-      setHandwritingText(mockOCRResult)
-      setIsOCRProcessing(false)
-    }, 2000)
-  }
 
   const addTag = (tag: string) => {
     if (tag && !tags.includes(tag)) {
@@ -623,10 +548,6 @@ export default function Component() {
                 <span>{date}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Clock className="w-4 h-4" />
-                <span>{time}</span>
-              </div>
-              <div className="flex items-center space-x-2">
                 <MapPin className="w-4 h-4" />
                 <input
                   type="text"
@@ -638,177 +559,64 @@ export default function Component() {
               </div>
             </div>
 
-            {/* 작성 모드 탭 */}
-            <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg w-fit">
-              <button
-                onClick={() => setActiveTab("text")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === "text" ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <Type className="w-4 h-4" />
-                <span>리치 텍스트</span>
-              </button>
-              <button
-                onClick={() => setActiveTab("handwriting")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === "handwriting"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                <PenTool className="w-4 h-4" />
-                <span>손글씨</span>
-              </button>
-            </div>
-
             {/* 리치 텍스트 에디터 */}
-            {activeTab === "text" && (
-              <div className="space-y-4">
-                <RichTextEditor
-                  content={content}
-                  onChange={(newContent) => {
-                    setContent(newContent)
-                    setLastCursorActivity(Date.now())
+            <div className="space-y-4">
+              <RichTextEditor
+                content={content}
+                onChange={(newContent) => {
+                  setContent(newContent)
+                  setLastCursorActivity(Date.now())
 
-                    // 5초간 입력이 없으면 AI 도움 제안
-                    setTimeout(() => {
-                      if (Date.now() - lastCursorActivity >= 4900 && newContent.length > 10 && !showAIHelp) {
-                        setShowAIHelp(true)
-                        setAiSuggestion("이런 일이 있었다고 적었는데 그때 기분은 어땠나요?")
-                      }
-                    }, 5000)
-                  }}
-                  placeholder="오늘 하루는 어떠셨나요? 자유롭게 작성해보세요..."
-                />
+                  // 5초간 입력이 없으면 AI 도움 제안
+                  setTimeout(() => {
+                    if (Date.now() - lastCursorActivity >= 4900 && newContent.length > 10 && !showAIHelp) {
+                      setShowAIHelp(true)
+                      setAiSuggestion("이런 일이 있었다고 적었는데 그때 기분은 어땠나요?")
+                    }
+                  }, 5000)
+                }}
+                placeholder="오늘 하루는 어떠셨나요? 자유롭게 작성해보세요..."
+              />
 
-                {/* AI 도움 제안 */}
-                {showAIHelp && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                    <div className="flex items-start space-x-3">
-                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                        <Wand2 className="w-4 h-4 text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-medium text-purple-800 mb-1">AI 도움</h4>
-                        <p className="text-sm text-purple-700 mb-3">{aiSuggestion}</p>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setContent(content + "\n\n" + aiSuggestion)
-                              setShowAIHelp(false)
-                            }}
-                          >
-                            질문 추가
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setAiSuggestion("오늘 가장 기억에 남는 순간은 언제였나요?")
-                            }}
-                          >
-                            다른 질문
-                          </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setShowAIHelp(false)}>
-                            닫기
-                          </Button>
-                        </div>
+              {/* AI 도움 제안 */}
+              {showAIHelp && (
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Wand2 className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-purple-800 mb-1">AI 도움</h4>
+                      <p className="text-sm text-purple-700 mb-3">{aiSuggestion}</p>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setContent(content + "\n\n" + aiSuggestion)
+                            setShowAIHelp(false)
+                          }}
+                        >
+                          질문 추가
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setAiSuggestion("오늘 가장 기억에 남는 순간은 언제였나요?")
+                          }}
+                        >
+                          다른 질문
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setShowAIHelp(false)}>
+                          닫기
+                        </Button>
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-
-            {/* 손글씨 작성 모드 */}
-            {activeTab === "handwriting" && (
-              <div className="space-y-4">
-                {/* 손글씨 도구 */}
-                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <label className="text-sm font-medium text-slate-700">굵기:</label>
-                      <input
-                        type="range"
-                        min="1"
-                        max="10"
-                        value={brushSize}
-                        onChange={(e) => setBrushSize(Number(e.target.value))}
-                        className="w-20"
-                      />
-                      <span className="text-sm text-slate-600">{brushSize}px</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <label className="text-sm font-medium text-slate-700">색상:</label>
-                      <input
-                        type="color"
-                        value={brushColor}
-                        onChange={(e) => setBrushColor(e.target.value)}
-                        className="w-8 h-8 rounded border border-slate-300"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={clearCanvas}
-                      className="text-red-600 border-red-200 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      지우기
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={performOCR}
-                      disabled={isOCRProcessing}
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                    >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      {isOCRProcessing ? "변환 중..." : "텍스트 변환"}
-                    </Button>
-                  </div>
                 </div>
-
-                {/* 손글씨 캔버스 */}
-                <div className="bg-white rounded-lg border border-slate-200 p-4">
-                  <canvas
-                    ref={canvasRef}
-                    width={800}
-                    height={400}
-                    onMouseDown={startDrawing}
-                    onMouseMove={draw}
-                    onMouseUp={stopDrawing}
-                    onMouseLeave={stopDrawing}
-                    className="w-full h-96 border border-slate-100 rounded cursor-crosshair"
-                    style={{ touchAction: "none" }}
-                  />
-                </div>
-
-                {/* OCR 결과 */}
-                {handwritingText && (
-                  <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-blue-900">변환된 텍스트</h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setContent(content + "\n\n" + handwritingText)}
-                        className="text-blue-600 hover:bg-blue-100"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        텍스트에 추가
-                      </Button>
-                    </div>
-                    <p className="text-slate-700 leading-relaxed">{handwritingText}</p>
-                  </div>
-                )}
-              </div>
-            )}
+              )}
+            </div>
 
             {/* 고급 이미지 업로드 */}
             <div className="space-y-4">
@@ -1057,13 +865,6 @@ export default function Component() {
             <div className="prose prose-slate max-w-none">
               <div dangerouslySetInnerHTML={{ __html: content || "내용이 없습니다." }} />
             </div>
-
-            {handwritingText && (
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h3 className="text-sm font-medium text-blue-900 mb-2">손글씨 내용</h3>
-                <p className="text-slate-700 leading-relaxed">{handwritingText}</p>
-              </div>
-            )}
 
             {tags.length > 0 && (
               <div className="pt-4 border-t border-slate-200">
