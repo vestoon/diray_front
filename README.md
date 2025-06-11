@@ -1,36 +1,141 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 감정 일기장 프론트엔드
 
-## Getting Started
+---
 
-First, run the development server:
+## TODO
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- [ ] **공통**
+
+- [ ] **대시보드(dashboard)**
+    - [ ] 날짜별 감정 통계 구현(api를 요청하거나 diary에서 직접 추출)
+    - [ ] 다른 탭에 비해 좌우로 넓기 때문에 줄일지 고민이 필요
+    - [ ] 추천 일기 메커니즘(있는지 확인 필요)
+
+- [ ] **내 일기(my-diary)**
+    - [ ] 달력처럼 월별로 검색하게 하는게 사실 정석
+    - [ ] UserInfoCard의 위치가 다른 페이지와 맞지 않음
+
+- [ ] **일기 내부부(diary)**
+    - [ ] 초기 버전에서 거의 손대지 않음, 내 일기 탭에 맞춰서 수정해야 할 수도
+
+- [ ] **일기 작성(write)**
+    - [ ] 전체적인 UI개선
+    - [ ] 쓰다가 막혔을 때 ai질문 기능 사용하는지 여부 확인
+    - [ ] Header부분 수정 필요
+    - [ ] 다른 페이지로 이동하는 라우팅 부족
+
+- [ ] **나눔방(communities)**
+    - [ ] 커뮤니티 추천 기능 구현(하루에 한번 갱신되는걸 반영하게 해주는 기능 필요)
+    - [ ] 트렌딩 탭을 어떻게 구현해 볼 건지 지울 건지 고민
+    - [ ] 커뮤니티 상세 정보 확장
+
+- [ ] **나눔방 내부(community)**
+    - [ ] 아직 페이지 구현이 되어 있지 않음
+
+
+---
+
+감정 일기장은 사용자가 자신의 감정과 하루를 기록하고, 다양한 커뮤니티에서 소통할 수 있는 감정 기반 일기 서비스입니다.  
+이 저장소는 **Next.js** 기반의 프론트엔드 코드입니다.
+
+---
+
+## 주요 기능
+
+- **일기 작성/수정/삭제**  
+  - 리치 텍스트 에디터로 감정, 태그, 공개/비공개 등 다양한 정보와 함께 일기 작성
+  - 이미지 업로드, AI 질문 추천, 위치/날씨 등 부가 정보 입력 지원
+
+- **한 줄 일기**  
+  - 오늘의 한 줄 일기 목록 확인 (작성 기능은 비활성화됨)
+
+- **감정 통계 및 대시보드**  
+  - 최근 감정 분포, 주간 감정 추세, 커뮤니티 추천 등 시각화
+
+- **커뮤니티(나눔방) 기능**  
+  - 관심사 기반 커뮤니티 참여/추천/탐색
+  - 커뮤니티별 일기 목록, 멤버, 활동 정보 제공
+
+- **모의(mock) 데이터 지원**  
+  - API 호출 실패 시 mock 데이터를 자동으로 fallback하여 개발/테스트 환경에서도 정상 동작
+
+- **반응형 UI & 다크모드 지원**  
+  - Tailwind CSS 기반의 일관된 디자인 시스템 적용
+
+---
+
+## 폴더 구조
+
+```
+src/
+  app/
+    components/         # 공통 UI 컴포넌트
+    dashboard/          # 대시보드(감정 통계 등)
+    my-diary/           # 내 일기 목록
+    write/              # 일기 작성 페이지
+    communities/        # 커뮤니티(나눔방) 목록/참여
+    community/          # 커뮤니티 상세
+    diary/              # 일기 상세
+    ...
+  components/           # Header, UserInfoCard 등 공통 컴포넌트
+  lib/                  # API, context, util 등
+  mock/                 # mock 데이터 (API 실패 시 fallback)
+  types/                # 타입 정의
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 주요 기술 스택
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 14**
+- **React 18**
+- **TypeScript**
+- **Tailwind CSS**
+- **Sonner** (toast 알림)
+- **Lucide-react** (아이콘)
+- **Axios** (API 통신)
+- **Jest/React Testing Library** (테스트, 선택적)
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 개발/테스트 환경
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `.env` 파일에 API 서버 주소 등 환경 변수 설정 필요
+- API 서버가 없거나 호출 실패 시, `src/mock/`의 mock 데이터가 자동으로 사용됨
+- 개발 서버 실행:
+  ```bash
+  npm install
+  npm run dev
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 커스텀 및 확장
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **mock 데이터 추가/수정**  
+  - `src/mock/diary.ts`, `src/mock/community.ts`, `src/mock/user.ts` 등에서 관리
+- **공통 컴포넌트**  
+  - `src/app/components/` 및 `src/components/` 참고
+- **글로벌 스타일/테마**  
+  - `src/app/globals.css`, Tailwind 설정 참고
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 기여 방법
+
+1. 이슈/PR 등록 전 최신 main 브랜치 pull
+2. 기능/버그별 브랜치 생성 후 작업
+3. 커밋 메시지는 명확하게 작성
+4. PR 등록 시, 변경 내용과 테스트 방법을 상세히 작성
+
+---
+
+## 라이선스
+
+MIT
+
+---
+
+## 문의
+
+- 이슈 등록 또는 [프로젝트 관리자에게 메일](mailto:your@email.com)
