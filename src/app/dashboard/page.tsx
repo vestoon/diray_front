@@ -309,9 +309,6 @@ export default function Component() {
                   <span className="hidden sm:inline">내 나눔방 최신 일기</span>
                   <span className="sm:hidden">나눔방</span>
                 </h2>
-                <Button variant="ghost" size="sm" className="text-blue-600 text-sm">
-                  More
-                </Button>
               </div>
               {error && (
                 <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700">
@@ -380,9 +377,6 @@ export default function Component() {
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-green-600" />
                   추천 일기
                 </h2>
-                <Button variant="ghost" size="sm" className="text-green-600 text-sm">
-                  More
-                </Button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {recommendedEntries.length === 0 && (
