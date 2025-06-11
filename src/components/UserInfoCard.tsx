@@ -1,4 +1,4 @@
-import { User } from "@/types/diary"
+import { User } from "@/types/user"
 
 interface UserInfoCardProps {
   user: User

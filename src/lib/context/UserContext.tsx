@@ -1,9 +1,10 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { User } from '@/types/diary'
+import { User } from '@/types/user'
 import { authAPI } from '@/lib/api'
 import { useRouter } from 'next/navigation'
+import mockUser from '@/mock/user'
 
 interface UserContextType {
   user: User | null
@@ -12,15 +13,6 @@ interface UserContextType {
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
-
-// Mock user data for development
-const mockUser: User = {
-  id: 40,
-  email: "user@example.com",
-  nickname: "테스트",
-  profileImage: "https://www.gravatar.com/avatar/1?d=identicon",
-  role: "USER"
-}
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
