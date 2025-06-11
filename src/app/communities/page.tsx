@@ -79,10 +79,18 @@ export default function SharingRoomsPage() {
 
   // 조건부 렌더링은 useEffect 아래에서!
   if (isUserLoading) {
-    return <div>로딩중...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
   if (!currentUser) {
-    return <div>로그인이 필요합니다.</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-500 text-lg">로그인이 필요합니다.</div>
+      </div>
+    )
   }
 
   // --- 함수 내부에서도 null 체크 추가 ---
