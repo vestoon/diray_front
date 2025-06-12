@@ -31,7 +31,7 @@ export const diaryAPI = {
     return response.data
   },
 
-  // 기존 일기 수정정
+  // 기존 일기 수정
   updateDiary: async (id: number, data: UpdateDiaryRequest): Promise<ApiResponse<Diary>> => {
     const response = await api.put<ApiResponse<Diary>>(`/diaries/${id}`, data)
     return response.data
@@ -43,7 +43,7 @@ export const diaryAPI = {
     return response.data
   },
 
-  // 로그인한 사용자의 모든 일기 조회회
+  // 로그인한 사용자의 모든 일기 조회
   getMyDiaries: async (): Promise<ApiResponse<Diary[]>> => {
     const response = await api.get<ApiResponse<Diary[]>>('/diaries/my')
     return response.data

@@ -41,32 +41,29 @@ export default function Component() {
       try {
         const res = await api.get(`/diary/${diaryId}`)
         if (!ignore) {
-          setDiaryData(res.data)
+          setDiaryData({
+            ...res.data,
+            likes: res.data.likes ?? 0,
+            comments: res.data.comments ?? 0,
+          })
           setLikeCount(res.data.likes ?? 0)
         }
       } catch (e) {
-        // mock 데이터에서 id로 찾기
         const mock = mockCurrentUserDiaries.find((d) => d.id === diaryId)
         if (!ignore && mock) {
           setDiaryData({
             ...mock,
-            author: {
-              name: mock.user.nickname,
-              avatar: mock.user.profileImage,
-            },
+            likes: mock.likes ?? 0,
+            comments: mock.comments ?? 0,
             date: new Date(mock.createdAt).toLocaleString("ko-KR"),
-            location: "서울시 강남구", // 임시
-            mood: "😊", // 임시
             tags: Object.keys(mock.tags),
-            bannerImages: [mock.user.profileImage],
-            additionalImages: [],
             stats: {
-              likes: mock.likes,
-              comments: mock.comments,
+              likes: mock.likes ?? 0,
+              comments: mock.comments ?? 0,
               views: 0,
             },
           })
-          setLikeCount(mock.likes)
+          setLikeCount(mock.likes ?? 0)
         }
       } finally {
         setLoading(false)
@@ -92,9 +89,6 @@ export default function Component() {
     )
   }
 
-  // 이하 기존 diaryData 사용하던 부분 그대로 유지
-  // diaryData.author, diaryData.title, diaryData.content 등 사용
-
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -108,12 +102,12 @@ export default function Component() {
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 rounded-full overflow-hidden">
                   <img
-                    src={diaryData.author.avatar || "/placeholder.svg"}
-                    alt={diaryData.author.name}
+                    src={diaryData.user.profileImage || "/placeholder.svg"}
+                    alt={diaryData.user.nickname}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="font-medium text-slate-900">{diaryData.author.name}</span>
+                <span className="font-medium text-slate-900">{diaryData.user.nickname}</span>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -128,36 +122,6 @@ export default function Component() {
         </div>
       </header>
 
-      {/* Banner Images */}
-      <div className="relative">
-        <div className="aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
-          <div className="grid grid-cols-2 h-full">
-            {diaryData.bannerImages?.map((image: string, index: number) => (
-              <div key={index} className="relative overflow-hidden">
-                <img
-                  src={image || "/placeholder.svg"}
-                  alt={`배너 이미지 ${index + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-        {/* Floating Action Buttons */}
-        <div className="absolute bottom-4 right-4 flex space-x-2">
-          <button
-            onClick={() => setIsBookmarked(!isBookmarked)}
-            className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors ${
-              isBookmarked ? "bg-yellow-500 text-white" : "bg-white/80 text-slate-700 hover:bg-white"
-            }`}
-          >
-            <Bookmark className="w-5 h-5" fill={isBookmarked ? "currentColor" : "none"} />
-          </button>
-        </div>
-      </div>
-
       {/* Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <article className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -169,14 +133,6 @@ export default function Component() {
               <div className="flex items-center space-x-2">
                 <Calendar className="w-4 h-4" />
                 <span>{diaryData.date}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4" />
-                <span>{diaryData.location}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-lg">{diaryData.mood}</span>
-                <span>좋은 하루</span>
               </div>
             </div>
             {/* Tags */}
@@ -201,22 +157,6 @@ export default function Component() {
                 </p>
               ))}
             </div>
-            {/* Additional Images */}
-            {diaryData.additionalImages?.length > 0 && (
-              <div className="mt-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {diaryData.additionalImages.map((image: string, index: number) => (
-                    <div key={index} className="relative group overflow-hidden rounded-lg">
-                      <img
-                        src={image || "/basic.jpeg"}
-                        alt={`추가 이미지 ${index + 1}`}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
           {/* Interaction Bar */}
           <div className="px-6 sm:px-8 py-4 border-t border-slate-200 bg-slate-50">
