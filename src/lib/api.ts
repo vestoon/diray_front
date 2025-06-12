@@ -1,17 +1,21 @@
 import api from './axios'
 import { 
-  ApiResponse, 
+  ApiResponse 
+} from '@/types/api'
+import { 
   Diary, 
   OneLineDiary, 
-  Community,
   CreateDiaryRequest,
   UpdateDiaryRequest,
   CreateOneLineDiaryRequest,
-  UpdateOneLineDiaryRequest,
-  CreateCommunityRequest,
-  JoinCommunityRequest,
-  AuthUser,
-} from '@/types/diary';
+  UpdateOneLineDiaryRequest
+} from '@/types/diary'
+import { 
+  Community, 
+  CreateCommunityRequest, 
+  JoinCommunityRequest 
+} from '@/types/community'
+import { AuthUser } from '@/types/user'
 
 // Diary API
 export const diaryAPI = {

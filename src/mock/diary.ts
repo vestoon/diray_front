@@ -41,6 +41,28 @@ export const mockCurrentUserDiaries: Diary[] = [
     },
     likes: 8,
     comments: 5
+  },
+  {
+    id: 40,
+    title: "오늘의 소중한 8일차",
+    content: `어느덧 소위지은 8일차에 도달했습니다. 이제 이집 쉐이크, 점심 식단, 간식 쉐이크, 저녁 탄수화물 제한식의 코스입니다. 3일째 정체기가 찾아왔습니다. 6일에 5.5키로 빠졌는데, 그럼만도 합니다. 오늘은 운동 강도를 조금 더 높였습니다. 근력 운동과 추가적으로 30분 인터벌로 12km/h까지 올렸습니다. 점심 빠지기는 모양새라 기분이 좋습니다.
+
+요리도 먹을 수 있는 것들 중 제한하여 소량 요리합니다.`,
+    primaryEmotion: "happy", // 임시
+    secondaryEmotions: ["motivated", "thankful"], // 임시
+    tags: { "기쁨": "joy", "여행": "travel", "운동": "exercise", "낙망": "discouraged", "감사": "gratitude" },
+    isPublic: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    user: {
+      id: 17,
+      email: "user17@example.com",
+      nickname: "최정혁",
+      profileImage: "/basic.jpeg?height=40&width=40",
+      role: "USER"
+    },
+    likes: 17,
+    comments: 3
   }
 ]
 

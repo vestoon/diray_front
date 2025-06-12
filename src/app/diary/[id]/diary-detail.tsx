@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 import { Button } from "../../components/ui/button"
 import {
   ArrowLeft,
@@ -16,44 +17,83 @@ import {
   Tag,
   User,
 } from "lucide-react"
+import api from "@/lib/axios"
+import { mockCurrentUserDiaries } from "@/mock/diary"
 
 export default function Component() {
+  const params = useParams()
+  const diaryId = Number(params?.id)
   const [isLiked, setIsLiked] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
-  const [likeCount, setLikeCount] = useState(17)
+  const [likeCount, setLikeCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [diaryData, setDiaryData] = useState<any>(null)
 
   const handleLike = () => {
     setIsLiked(!isLiked)
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
   }
 
-  const diaryData = {
-    id: "250324",
-    title: "오늘의 소중한 8일차",
-    author: {
-      name: "최정혁",
-      avatar: "/basic.jpeg?height=40&width=40",
-    },
-    date: "March 24, 2025 PM 20:39",
-    location: "서울시 강남구",
-    mood: "😊",
-    tags: ["기쁨", "여행", "운동", "낙망", "감사"],
-    bannerImages: ["/basic.jpeg", "/basic2.jpeg?height=400&width=600"],
-    content: `어느덧 소위지은 8일차에 도달했습니다.
-이제 이집 쉐이크, 점심 식단, 간식 쉐이크, 저녁 탄수화물 제한식의 코스입니다.
+  useEffect(() => {
+    let ignore = false
+    const fetchDiary = async () => {
+      setLoading(true)
+      try {
+        const res = await api.get(`/diary/${diaryId}`)
+        if (!ignore) {
+          setDiaryData(res.data)
+          setLikeCount(res.data.likes ?? 0)
+        }
+      } catch (e) {
+        // mock 데이터에서 id로 찾기
+        const mock = mockCurrentUserDiaries.find((d) => d.id === diaryId)
+        if (!ignore && mock) {
+          setDiaryData({
+            ...mock,
+            author: {
+              name: mock.user.nickname,
+              avatar: mock.user.profileImage,
+            },
+            date: new Date(mock.createdAt).toLocaleString("ko-KR"),
+            location: "서울시 강남구", // 임시
+            mood: "😊", // 임시
+            tags: Object.keys(mock.tags),
+            bannerImages: [mock.user.profileImage],
+            additionalImages: [],
+            stats: {
+              likes: mock.likes,
+              comments: mock.comments,
+              views: 0,
+            },
+          })
+          setLikeCount(mock.likes)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    if (diaryId) fetchDiary()
+    return () => { ignore = true }
+  }, [diaryId])
 
-3일째 정체기가 찾아왔습니다. 6일에 5.5키로 빠졌는데, 그럼만도 합니다.
-
-오늘은 운동 강도를 조금 더 높였습니다. 근력 운동과 추가적으로 30분 인터벌로 12km/h까지 올렸습니다. 점심 빠지기는 모양새라 기분이 좋습니다.
-
-요리도 먹을 수 있는 것들 중 제한하여 소량 요리합니다.`,
-    additionalImages: ["/basic3.jpeg?height=300&width=400", "/basic4.jpeg?height=300&width=400"],
-    stats: {
-      likes: likeCount,
-      comments: 3,
-      views: 124,
-    },
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <span className="text-slate-400">로딩 중...</span>
+      </div>
+    )
   }
+
+  if (!diaryData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <span className="text-slate-400">일기를 찾을 수 없습니다.</span>
+      </div>
+    )
+  }
+
+  // 이하 기존 diaryData 사용하던 부분 그대로 유지
+  // diaryData.author, diaryData.title, diaryData.content 등 사용
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -92,7 +132,7 @@ export default function Component() {
       <div className="relative">
         <div className="aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
           <div className="grid grid-cols-2 h-full">
-            {diaryData.bannerImages.map((image, index) => (
+            {diaryData.bannerImages?.map((image: string, index: number) => (
               <div key={index} className="relative overflow-hidden">
                 <img
                   src={image || "/placeholder.svg"}
@@ -103,10 +143,8 @@ export default function Component() {
             ))}
           </div>
         </div>
-
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
-
         {/* Floating Action Buttons */}
         <div className="absolute bottom-4 right-4 flex space-x-2">
           <button
@@ -126,7 +164,6 @@ export default function Component() {
           {/* Article Header */}
           <div className="p-6 sm:p-8 border-b border-slate-200">
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">{diaryData.title}</h1>
-
             {/* Meta Information */}
             <div className="flex flex-wrap gap-4 text-sm text-slate-600 mb-4">
               <div className="flex items-center space-x-2">
@@ -142,10 +179,9 @@ export default function Component() {
                 <span>좋은 하루</span>
               </div>
             </div>
-
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
-              {diaryData.tags.map((tag, index) => (
+              {diaryData.tags?.map((tag: string, index: number) => (
                 <span
                   key={index}
                   className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
@@ -156,22 +192,20 @@ export default function Component() {
               ))}
             </div>
           </div>
-
           {/* Article Content */}
           <div className="p-6 sm:p-8">
             <div className="prose prose-slate max-w-none">
-              {diaryData.content.split("\n").map((paragraph, index) => (
+              {diaryData.content.split("\n").map((paragraph: string, index: number) => (
                 <p key={index} className="mb-4 leading-relaxed text-slate-700">
                   {paragraph}
                 </p>
               ))}
             </div>
-
             {/* Additional Images */}
-            {diaryData.additionalImages.length > 0 && (
+            {diaryData.additionalImages?.length > 0 && (
               <div className="mt-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {diaryData.additionalImages.map((image, index) => (
+                  {diaryData.additionalImages.map((image: string, index: number) => (
                     <div key={index} className="relative group overflow-hidden rounded-lg">
                       <img
                         src={image || "/basic.jpeg"}
@@ -184,7 +218,6 @@ export default function Component() {
               </div>
             )}
           </div>
-
           {/* Interaction Bar */}
           <div className="px-6 sm:px-8 py-4 border-t border-slate-200 bg-slate-50">
             <div className="flex items-center justify-between">
@@ -196,18 +229,17 @@ export default function Component() {
                   }`}
                 >
                   <Heart className="w-5 h-5" fill={isLiked ? "currentColor" : "none"} />
-                  <span className="font-medium">{diaryData.stats.likes}</span>
+                  <span className="font-medium">{likeCount}</span>
                 </button>
                 <button className="flex items-center space-x-2 text-slate-600 hover:text-blue-500 transition-colors">
                   <MessageCircle className="w-5 h-5" />
-                  <span className="font-medium">{diaryData.stats.comments}</span>
+                  <span className="font-medium">{diaryData.stats?.comments ?? 0}</span>
                 </button>
                 <div className="flex items-center space-x-2 text-slate-500">
                   <User className="w-4 h-4" />
-                  <span className="text-sm">{diaryData.stats.views} views</span>
+                  <span className="text-sm">{diaryData.stats?.views ?? 0} views</span>
                 </div>
               </div>
-
               <div className="flex items-center space-x-2">
                 <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
                   <Edit className="w-4 h-4 mr-2" />
@@ -221,11 +253,9 @@ export default function Component() {
             </div>
           </div>
         </article>
-
         {/* Comments Section */}
         <section className="mt-8 bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8">
-          <h3 className="text-lg font-semibold text-slate-900 mb-6">댓글 {diaryData.stats.comments}개</h3>
-
+          <h3 className="text-lg font-semibold text-slate-900 mb-6">댓글 {diaryData.stats?.comments ?? 0}개</h3>
           {/* Comment Input */}
           <div className="mb-6">
             <div className="flex space-x-3">
@@ -246,7 +276,6 @@ export default function Component() {
               </div>
             </div>
           </div>
-
           {/* Sample Comments */}
           <div className="space-y-4">
             <div className="flex space-x-3">
@@ -269,7 +298,6 @@ export default function Component() {
                 </div>
               </div>
             </div>
-
             <div className="flex space-x-3">
               <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-slate-600" />
