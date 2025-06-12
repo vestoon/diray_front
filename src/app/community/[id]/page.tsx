@@ -117,7 +117,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-5xl mx-auto px-2 sm:px-4 lg:px-6 py-8">
         {/* Back Button */}
