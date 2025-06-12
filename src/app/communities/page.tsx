@@ -38,7 +38,6 @@ export default function SharingRoomsPage() {
   const [newRoomName, setNewRoomName] = useState("")
   const [newRoomDescription, setNewRoomDescription] = useState("")
   const [newRoomTags, setNewRoomTags] = useState<string[]>([])
-  const [newRoomCategory, setNewRoomCategory] = useState<Community["category"]>("lifestyle")
   const [showCommunityAlert, setShowCommunityAlert] = useState(false)
   const [pendingCommunity, setPendingCommunity] = useState<Community | null>(null)
   const [communities, setCommunities] = useState<Community[]>([])
@@ -183,7 +182,6 @@ export default function SharingRoomsPage() {
           name: newRoomName,
           description: newRoomDescription,
           tags: newRoomTags,
-          category: newRoomCategory,
           isPrivate: false
         }
         const response = await communityAPI.createCommunity(newCommunity)
@@ -200,7 +198,6 @@ export default function SharingRoomsPage() {
           id: Math.max(...communities.map(c => c.id)) + 1,
           name: newRoomName,
           description: newRoomDescription,
-          category: newRoomCategory,
           tags: newRoomTags,
           isPrivate: false,
           memberCount: 1,
@@ -713,29 +710,6 @@ export default function SharingRoomsPage() {
                   placeholder="예: 직장인 힐링 모임"
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">카테고리</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {categories.slice(1).map((category) => {
-                    const Icon = category.icon
-                    return (
-                      <button
-                        key={category.id}
-                        onClick={() => setNewRoomCategory(category.id as Community["category"])}
-                        className={`flex flex-col items-center space-y-2 p-3 rounded-lg border-2 transition-colors ${
-                          newRoomCategory === category.id
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-slate-200 hover:border-slate-300"
-                        }`}
-                      >
-                        <Icon className="w-5 h-5" />
-                        <span className="text-xs font-medium">{category.name}</span>
-                      </button>
-                    )
-                  })}
-                </div>
               </div>
 
               <div>

@@ -4,7 +4,6 @@ export interface Community {
   id: number
   name: string
   description: string
-  category?: "lifestyle" | "health" | "career" | "relationships" | "hobbies"
   tags?: string[]
   isPrivate: boolean
   memberCount: number
@@ -25,7 +24,6 @@ export interface CreateCommunityRequest {
   name: string
   description: string
   isPrivate: boolean
-  category?: "lifestyle" | "health" | "career" | "relationships" | "hobbies"
   tags?: string[]
 }
 
@@ -33,7 +31,6 @@ export interface UpdateCommunityRequest {
   name: string
   description: string
   isPrivate: boolean
-  category?: "lifestyle" | "health" | "career" | "relationships" | "hobbies"
   tags?: string[]
 }
 
