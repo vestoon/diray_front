@@ -63,7 +63,7 @@ export default function Component() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-neutral-900 text-white relative overflow-hidden font-sans">
+    <div className="min-h-screen text-white relative overflow-hidden font-sans">
       {/* 3D Floating Elements */}
       <div className="absolute inset-0">
         {/* Large rounded rectangles */}
