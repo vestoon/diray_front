@@ -1,218 +1,17 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef, useCallback } from "react"
+import { useState } from "react"
 import { Button } from "../components/ui/button"
-import { ArrowLeft, Type, PenTool, Smile, Tag, Save, Eye, EyeOff, Trash2, Download, Wand2, Calendar, Clock, MapPin, Camera, Upload, X, Edit, RotateCw, Crop, Palette, Filter, Hash, Users, ChevronRight } from 'lucide-react'
+import {
+  ArrowLeft, Type, Smile, Tag, Save, Eye, EyeOff, Calendar, Clock, MapPin, Filter, Users, Download, Hash, Wand2
+} from 'lucide-react'
 import { RichTextEditor } from "../components/ui/rich-text-editor"
 
-// 고급 이미지 업로드 컴포넌트
-const AdvancedImageUpload = ({
-  images,
-  onImagesChange,
-}: {
-  images: Array<{ url: string; name: string; size: number }>
-  onImagesChange: (images: Array<{ url: string; name: string; size: number }>) => void
-}) => {
-  const [isDragOver, setIsDragOver] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<number | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(true)
-  }, [])
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    setIsDragOver(false)
-  }, [])
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      setIsDragOver(false)
-
-      const files = Array.from(e.dataTransfer.files).filter((file) => file.type.startsWith("image/"))
-
-      processFiles(files)
-    },
-    [images, onImagesChange],
-  )
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    processFiles(files)
-  }
-
-  const processFiles = (files: File[]) => {
-    files.forEach((file) => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const newImage = {
-            url: e.target.result as string,
-            name: file.name,
-            size: file.size,
-          }
-          onImagesChange([...images, newImage])
-        }
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  const removeImage = (index: number) => {
-    onImagesChange(images.filter((_, i) => i !== index))
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
-
-  return (
-    <div className="space-y-4">
-      {/* 드래그 앤 드롭 영역 */}
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-          isDragOver ? "border-blue-500 bg-blue-50" : "border-slate-300 hover:border-slate-400"
-        }`}
-      >
-        <div className="flex flex-col items-center space-y-4">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-            <Upload className="w-8 h-8 text-slate-400" />
-          </div>
-          <div>
-            <p className="text-lg font-medium text-slate-900">사진을 드래그하여 업로드하거나</p>
-            <p className="text-sm text-slate-500 mt-1">JPG, PNG, GIF 파일을 지원합니다 (최대 10MB)</p>
-          </div>
-          <Button onClick={() => fileInputRef.current?.click()} className="bg-blue-600 hover:bg-blue-700 text-white">
-            <Camera className="w-4 h-4 mr-2" />
-            파일 선택
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-        </div>
-      </div>
-
-      {/* 업로드된 이미지들 */}
-      {images.length > 0 && (
-        <div className="space-y-4">
-          <h4 className="font-medium text-slate-900">업로드된 사진 ({images.length})</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {images.map((image, index) => (
-              <div key={index} className="relative group bg-white rounded-lg border border-slate-200 overflow-hidden">
-                <div className="aspect-video relative">
-                  <img src={image.url || "/placeholder.svg"} alt={image.name} className="w-full h-full object-cover" />
-
-                  {/* 이미지 오버레이 */}
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex space-x-2">
-                      <button
-                        onClick={() => setSelectedImage(index)}
-                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center text-slate-600 hover:text-slate-900"
-                        title="편집"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => removeImage(index)}
-                        className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
-                        title="삭제"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 이미지 정보 */}
-                <div className="p-3">
-                  <p className="text-sm font-medium text-slate-900 truncate">{image.name}</p>
-                  <p className="text-xs text-slate-500">{formatFileSize(image.size)}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 이미지 편집 모달 (선택된 이미지가 있을 때) */}
-      {selectedImage !== null && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-900">이미지 편집</h3>
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-4">
-              <div className="mb-4">
-                <img
-                  src={images[selectedImage].url || "/placeholder.svg"}
-                  alt="편집 중인 이미지"
-                  className="w-full h-64 object-contain bg-slate-50 rounded"
-                />
-              </div>
-
-              {/* 편집 도구 */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                <Button variant="outline" size="sm">
-                  <RotateCw className="w-4 h-4 mr-2" />
-                  회전
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Crop className="w-4 h-4 mr-2" />
-                  자르기
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4 mr-2" />
-                  필터
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Palette className="w-4 h-4 mr-2" />
-                  보정
-                </Button>
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setSelectedImage(null)}>
-                  취소
-                </Button>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">적용</Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 export default function Component() {
-  // 나눔방 클러스터링 관련 상태 추가
+  // 상태 정의
   const [showSharingRooms, setShowSharingRooms] = useState(false)
   const [userCluster, setUserCluster] = useState<string | null>(null)
-  const [availableClusters, setAvailableClusters] = useState([
+  const [availableClusters] = useState([
     {
       id: "emotional-wellness",
       name: "감정 웰빙",
@@ -253,7 +52,6 @@ export default function Component() {
   const [showClusterChangeAlert, setShowClusterChangeAlert] = useState(false)
   const [suggestedCluster, setSuggestedCluster] = useState<string | null>(null)
   const [showRecommendations, setShowRecommendations] = useState(false)
-  // 한 줄 일기 목록 상태 추가
   const [oneLineDiaries, setOneLineDiaries] = useState<
     Array<{
       id: string
@@ -296,8 +94,6 @@ export default function Component() {
   const [newTag, setNewTag] = useState("")
   const [isPreview, setIsPreview] = useState(false)
   const [location, setLocation] = useState("")
-  const [weather, setWeather] = useState("")
-  const [images, setImages] = useState<Array<{ url: string; name: string; size: number }>>([])
   const [isPublic, setIsPublic] = useState(false)
   const [showPrivacyFilter, setShowPrivacyFilter] = useState(false)
   const [filteredContent, setFilteredContent] = useState("")
@@ -349,98 +145,11 @@ export default function Component() {
 
   const { date, time } = getCurrentDateTime()
 
-  const filterPersonalInfo = (text: string) => {
-    // 간단한 개인정보 필터링 예시
-    return text
-      .replace(/\d{3}-\d{4}-\d{4}/g, "***-****-****") // 전화번호
-      .replace(/[가-힣]{2,3}(?=님|씨|이|가)/g, "○○○") // 이름
-      .replace(/\d{4}년 \d{1,2}월 \d{1,2}일/g, "○○○○년 ○월 ○일") // 구체적인 날짜
-      .replace(/[서울|부산|대구|인천|광주|대전|울산][시구군]\s*[가-힣동로길]+/g, "○○지역") // 주소
-  }
-
-  // 태그 데이터
-  const tagCategories = {
-    감정: ["기쁨", "슬픔", "분노", "불안", "설렘", "지루함", "외로움", "만족", "실망"],
-    상황: ["직장", "학교", "가족", "친구", "연인", "여행", "운동", "취미", "휴식"],
-    건강: ["두통", "피로", "긴장", "식욕 감소", "불면"],
-  }
-
-  // 태그 색상 매핑
-  const tagColors = {
-    감정: {
-      기쁨: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      슬픔: "bg-blue-100 text-blue-800 border-blue-200",
-      분노: "bg-red-100 text-red-800 border-red-200",
-      불안: "bg-orange-100 text-orange-800 border-orange-200",
-      설렘: "bg-pink-100 text-pink-800 border-pink-200",
-      지루함: "bg-gray-100 text-gray-800 border-gray-200",
-      외로움: "bg-indigo-100 text-indigo-800 border-indigo-200",
-      만족: "bg-green-100 text-green-800 border-green-200",
-      실망: "bg-purple-100 text-purple-800 border-purple-200",
-    },
-    상황: {
-      직장: "bg-slate-100 text-slate-800 border-slate-200",
-      학교: "bg-emerald-100 text-emerald-800 border-emerald-200",
-      가족: "bg-amber-100 text-amber-800 border-amber-200",
-      친구: "bg-cyan-100 text-cyan-800 border-cyan-200",
-      연인: "bg-rose-100 text-rose-800 border-rose-200",
-      여행: "bg-sky-100 text-sky-800 border-sky-200",
-      운동: "bg-lime-100 text-lime-800 border-lime-200",
-      취미: "bg-violet-100 text-violet-800 border-violet-200",
-      휴식: "bg-teal-100 text-teal-800 border-teal-200",
-    },
-    건강: {
-      두통: "bg-red-100 text-red-800 border-red-200",
-      피로: "bg-amber-100 text-amber-800 border-amber-200",
-      긴장: "bg-orange-100 text-orange-800 border-orange-200",
-      "식욕 감소": "bg-yellow-100 text-yellow-800 border-yellow-200",
-      불면: "bg-indigo-100 text-indigo-800 border-indigo-200",
-    },
-  }
-
-  // 이모지 매핑
-  const emojiMap = {
-    기쁨: "😊",
-    슬픔: "😢",
-    분노: "😠",
-    불안: "😰",
-    설렘: "🤗",
-    지루함: "😴",
-    외로움: "🥺",
-    만족: "😌",
-    실망: "😞",
-    직장: "💼",
-    학교: "🏫",
-    가족: "👨‍👩‍👧‍👦",
-    친구: "👯",
-    연인: "💑",
-    여행: "✈️",
-    운동: "🏃",
-    취미: "🎨",
-    휴식: "🛌",
-    두통: "🤕",
-    피로: "😫",
-    긴장: "😬",
-    "식욕 감소": "🍽️",
-    불면: "🌙",
-  }
-
-  const [showOneLineTagSelector, setShowOneLineTagSelector] = useState(false)
-  const [activeOneLineTagCategory, setActiveOneLineTagCategory] = useState<keyof typeof tagCategories>("감정")
-  const [selectedOneLineTags, setSelectedOneLineTags] = useState<string[]>([])
-
-  // 한 줄 일기 태그 토글
-  const toggleOneLineTag = (tag: string) => {
-    if (selectedOneLineTags.includes(tag)) {
-      setSelectedOneLineTags(selectedOneLineTags.filter((t) => t !== tag))
-    } else {
-      setSelectedOneLineTags([...selectedOneLineTags, tag])
-    }
-  }
+  // 태그 입력란에 Hash 아이콘 필요
+  // AI 도움 제안에 Wand2 아이콘 필요
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -456,9 +165,9 @@ export default function Component() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowSharingRooms(true)}
                 className="hidden sm:flex"
               >
@@ -493,20 +202,11 @@ export default function Component() {
                     </span>
                     {diary.mood && <span className="text-sm">{moods.find((m) => m.value === diary.mood)?.emoji}</span>}
                     <div className="flex space-x-1">
-                      {diary.tags.map((tag) => {
-                        const category = Object.entries(tagCategories).find(([_, tags]) => tags.includes(tag))?.[0] as
-                          | keyof typeof tagColors
-                          | undefined
-                        const colorClass = category
-                          ? tagColors[category][tag as keyof (typeof tagColors)[typeof category]]
-                          : ""
-
-                        return (
-                          <span key={tag} className={`text-xs px-2 py-1 rounded ${colorClass}`}>
-                            {emojiMap[tag as keyof typeof emojiMap]} {tag}
-                          </span>
-                        )
-                      })}
+                      {diary.tags.map((tag) => (
+                        <span key={tag} className="text-xs px-2 py-1 rounded bg-slate-100 text-slate-700">
+                          #{tag}
+                        </span>
+                      ))}
                     </div>
                     <span
                       className={`text-xs px-2 py-1 rounded ${diary.isPublic ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}`}
@@ -566,8 +266,6 @@ export default function Component() {
                 onChange={(newContent) => {
                   setContent(newContent)
                   setLastCursorActivity(Date.now())
-
-                  // 5초간 입력이 없으면 AI 도움 제안
                   setTimeout(() => {
                     if (Date.now() - lastCursorActivity >= 4900 && newContent.length > 10 && !showAIHelp) {
                       setShowAIHelp(true)
@@ -618,12 +316,6 @@ export default function Component() {
               )}
             </div>
 
-            {/* 고급 이미지 업로드 */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-slate-900">사진</h3>
-              <AdvancedImageUpload images={images} onImagesChange={setImages} />
-            </div>
-
             {/* 감정 선택 */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-slate-900 flex items-center">
@@ -648,14 +340,12 @@ export default function Component() {
               </div>
             </div>
 
-            {/* 태그 - 카테고리별로 구분 */}
+            {/* 태그 입력 */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-slate-900 flex items-center">
                 <Tag className="w-5 h-5 mr-2 text-green-500" />
                 태그
               </h3>
-
-              {/* 태그 입력 */}
               <div className="flex space-x-2">
                 <div className="flex-1 relative">
                   <input
@@ -663,7 +353,7 @@ export default function Component() {
                     placeholder="태그를 입력하세요..."
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && addTag(newTag)}
+                    onKeyDown={(e) => e.key === "Enter" && addTag(newTag)}
                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                   />
                   <Hash className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -676,8 +366,7 @@ export default function Component() {
                   추가
                 </Button>
               </div>
-
-              {/* 카테고리별 추천 태그 */}
+              {/* 추천 태그 */}
               <div className="space-y-4">
                 <div>
                   <p className="text-sm font-medium text-slate-700 mb-2">감정:</p>
@@ -693,9 +382,8 @@ export default function Component() {
                     ))}
                   </div>
                 </div>
-
                 <div>
-                  <p className="texgir remote -vt-sm font-medium text-slate-700 mb-2">상황:</p>
+                  <p className="text-sm font-medium text-slate-700 mb-2">상황:</p>
                   <div className="flex flex-wrap gap-2">
                     {situationTags.map((tag) => (
                       <button
@@ -708,7 +396,6 @@ export default function Component() {
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <p className="text-sm font-medium text-slate-700 mb-2">건강:</p>
                   <div className="flex flex-wrap gap-2">
@@ -724,7 +411,6 @@ export default function Component() {
                   </div>
                 </div>
               </div>
-
               {/* 선택된 태그 */}
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -742,14 +428,12 @@ export default function Component() {
                 </div>
               )}
             </div>
-
             {/* 공개/비공개 설정 */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-slate-900 flex items-center">
                 <Eye className="w-5 h-5 mr-2 text-purple-500" />
                 공개 설정
               </h3>
-
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <label className="flex items-center space-x-2 cursor-pointer">
@@ -773,7 +457,6 @@ export default function Component() {
                     <span className="text-sm font-medium text-slate-700">공개</span>
                   </label>
                 </div>
-
                 <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg">
                   {isPublic ? (
                     <div>
@@ -795,13 +478,12 @@ export default function Component() {
                     </div>
                   )}
                 </div>
-
                 {isPublic && (
                   <div className="space-y-3">
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setFilteredContent(filterPersonalInfo(content))
+                        setFilteredContent(content) // 개인정보 필터링 함수는 필요시 추가
                         setShowPrivacyFilter(true)
                       }}
                       className="w-full"
@@ -809,7 +491,6 @@ export default function Component() {
                       <Filter className="w-4 h-4 mr-2" />
                       개인정보 필터링 미리보기
                     </Button>
-
                     {showPrivacyFilter && (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <h4 className="font-medium text-yellow-800 mb-2">필터링된 내용:</h4>
@@ -832,7 +513,6 @@ export default function Component() {
             </div>
           </div>
         ) : (
-          /* 미리보기 모드 */
           <div className="bg-white rounded-lg border border-slate-200 p-8 space-y-6">
             <div className="border-b border-slate-200 pb-6">
               <h1 className="text-3xl font-bold text-slate-900 mb-4">{title || "제목 없음"}</h1>
@@ -848,24 +528,9 @@ export default function Component() {
                 )}
               </div>
             </div>
-
-            {images.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {images.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image.url || "/placeholder.svg"}
-                    alt={`이미지 ${index + 1}`}
-                    className="w-full h-48 object-cover rounded-lg"
-                  />
-                ))}
-              </div>
-            )}
-
             <div className="prose prose-slate max-w-none">
               <div dangerouslySetInnerHTML={{ __html: content || "내용이 없습니다." }} />
             </div>
-
             {tags.length > 0 && (
               <div className="pt-4 border-t border-slate-200">
                 <div className="flex flex-wrap gap-2">
