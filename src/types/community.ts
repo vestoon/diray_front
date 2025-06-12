@@ -29,6 +29,14 @@ export interface CreateCommunityRequest {
   tags?: string[]
 }
 
+export interface UpdateCommunityRequest {
+  name: string
+  description: string
+  isPrivate: boolean
+  category?: "lifestyle" | "health" | "career" | "relationships" | "hobbies"
+  tags?: string[]
+}
+
 export interface JoinCommunityRequest {
   joinCode: string
 }
